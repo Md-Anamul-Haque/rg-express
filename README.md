@@ -10,14 +10,17 @@ Congrats! You just saved yourself hours of work by bootstrapping this project wi
 
 > If you’re new to TypeScript, checkout [this handy cheatsheet](https://devhints.io/typescript)
 
+```bash
+npm i rg-express
+# or
+yarn add rg-express
+```
+
 ## project setup
 
 ```
 project-directory
-├── .vscode
-│   └── settings.json
-├── .eslintrc.json
-├── tsconfig.json
+├── .eslintignore
 ├── package.json
 ├── src
 │   ├──hello
@@ -30,10 +33,65 @@ project-directory
 │   │   ├── route.ts
 │   │   └── ...
 │   ├──main.ts
+│   ├──_router.ts
 │   └── ..
 │
 └── ...
 
+```
+
+> \_router.ts // this file can make auto on startDirName like src or any, but default is src
+
+### how to setup on typescript
+
+## setup <i><u>main.ts<u></i>
+
+> only development
+
+```ts
+// main.ts
+// only development
+import express from 'express';
+import { rg } from 'rg-express';
+const app = express();
+const routerGenerators = new rg(app);
+if ('development' === process.env.NODE_ENV) {
+  routerGenerators.runDevBuilder();
+  routerGenerators.init();
+}
+// ... other code
+```
+
+> only production
+
+```ts
+// main.ts
+// only production
+import express from 'express';
+const app = express();
+import router from './_router';
+app.use(router);
+// ... other code
+```
+
+> both (development | production)
+
+```ts
+// main.ts
+// both (development | production)
+import express from 'express';
+import { rg } from 'rg-express';
+import router from './_router'; // when first starting then skip this
+
+const app = express();
+const routerGenerators = new rg(app);
+if ('development' === process.env.NODE_ENV) {
+  routerGenerators.runDevBuilder();
+  routerGenerators.init();
+} else {
+  app.use(router); // when first starting then skip this
+}
+// ... other code
 ```
 
 ### package.json config
@@ -44,116 +102,72 @@ project-directory
   "scripts": {
     "dev": "NODE_ENV=development nodemon --watch 'src/**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/main.ts",
     "start": "ts-node src/main.ts",
+    // ... other scripts hear
   },
-    "nodemonConfig": {
-    "ignore": [
-      "src/**/_router.ts"
-    ]
-  },
+
 ```
 
-### tsconfig.json
+#### #or
 
 ```json
-// tsconfig.json
-{
-  "compilerOptions": {
-    "incremental": true /* Enable incremental compilation */,
-    "target": "es2016" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-    "module": "commonjs" /* Specify what module code is generated. */,
-    "rootDir": "./src" /* Specify the root folder within your source files. */,
-    "outDir": "./dist",
-    "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
-    "baseUrl": "." /* Specify the base directory to resolve non-relative module names. */,
-    "resolveJsonModule": true /* Enable importing .json files */,
-    "allowJs": true /* Allow JavaScript files to be a part of your program. Use the `checkJS` option to get errors from these files. */,
-    "noEmit": true /* default Disable emitting files from a compilation. */,
-    "isolatedModules": true /* Ensure that each file can be safely transpiled without relying on other imports. */,
-    "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility. */,
-    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
-    "strict": true /* Enable all strict type-checking options. */,
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+// package.json
+...,
+  "scripts": {
+    "dev": "NODE_ENV=development nodemon --watch 'src/**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/main.ts",
+    "build": "tsc",
+    "start": "node dist/main.js",
+    // ... other scripts hear
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules"]
-}
 ```
 
-### .eslintrc.json
+## .eslintignore
 
-```josn
-{
-  "env": {
-    "browser": true,
-    "es2021": true
-  },
-  "extends": "standard-with-typescript",
-  "overrides": [],
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module"
-  },
-  "rules": {
-    "@typescript-eslint/explicit-function-return-type": "off"
+```eslintignore
+*_router.ts
+
+```
+
+## api router handler
+
+> // src/hello/route.ts
+
+```ts
+
+import { type Request, type Response } from 'express'
+const getRequest = async (req: Request, res: Response) => {
+  res.send('hello')
+}
+export const GET = getRequest
+// as like as you can export 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'
+
+```
+
+GET:http://localhost:4000/hello
+
+> src/user/[person]/route.ts
+
+```ts
+import { type Request, type Response } from 'express'
+const authUser =(req: Request, res: Response,next:NextFunction)=>{
+  if(isvalid){
+    next()
+  }else{
+    res.send('user not a valid');
   }
 }
-
-
-```
-
-### .vscode/settings.json
-
-```json
-{
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "[typescript]": {
-    "editor.formatOnSave": false
-  },
-  "editor.codeActionsOnSave": {
-    "source.fixAll": true
-  },
-  "eslint.enable": true,
-  "eslint.alwaysShowStatus": true,
-  "eslint.validate": ["typescript", "javascript"]
+const userName=req.params.person
+const getUser = async (req: Request, res: Response) => {
+  res.send(userName)
 }
-```
-
-## Commands
-
-rg-express scaffolds your new library inside `/src`.
-
-To run rg-express, use:
-
-```bash
-git clone this repo
-cd this-repo
-# for install all depandances
-yarn
-# and
-yarn dev
+export const GET = [authUser,getUser]
 
 ```
 
-## use tips
+GET:http://localhost:4000/user/muhammad
+
+> /abc/[..slugs] / route.ts;
 
 ```ts
-// /abc/[slug]/route.ts
-//  as like as /abc/:slug
-const slugValue = req.params.slug;
-res.send(slugValue)
-http://localhost:3000/abc/muhammad
-
-// output: muhammad
-
-```
-
-```ts
-// /abc/[..slug] / route.ts;
-//  as like as /abc/:slug
 import { type Request, type Response } from 'express'
 
 const getRequest = async (req: Request, res: Response) => {
@@ -163,54 +177,40 @@ const getRequest = async (req: Request, res: Response) => {
 }
 export const GET = getRequest
 
-// http://localhost:3000/abc/n/o/c/r/a/s/h/s/o/f/t
 
 // output: Captured slugs: n,o,c,r,a,s,h,s,o,f,t
 ```
 
-this <mark>middleware</mark> as like as <mark>express middleware</mark>
+GET:http://localhost:3000/abc/n/o/c/r/a/s/h/s/o/f/t
 
 ### use middlewares
 
 ```ts
-export const GET = [auth, authIsAdmin, getRequest]; // if you want to use middlewares
-
-// to
-
-// app.[method](pathname,auth, authIsAdmin, getRequest)
+// route.ts
+export const GET = [auth, getUser]; // if you want to use middlewares
+export const POST = [auth, authIsAdmin, newUser]; // if you want to use middlewares
+export const PUT = [auth, authIsAdmin, updateUser]; // if you want to use middlewares
+export const DELETE = [auth, authIsAdmin, deleteUser]; // if you want to use middlewares
 ```
 
-## setup <i><u>main.ts<u></i>
+## javascript
+
+### how to setup on javascript
+
+## setup <i><u>main.js<u></i>
+
+```js
+// ... pree code
+const routerGenerators = new rg(app, { lang: 'js' });
+
+// ... other
+```
+
+default is {lang:'ts'}
+
+### how to set start folder
 
 ```ts
-// main.ts
-import router from './_router';
-if ('development' === process.env.NODE_ENV) {
-  routerGenerators.runDevBuilder();
-  routerGenerators.runStudio();
-  // routerGenerators.init()
-  console.log('building');
-} else {
-  app.use(router);
-}
+// this is default
+const routerGenerators = new rg(app, { startDirName: 'src' });
 ```
-
-> `this is default props routerGenerators([{startWiths:'src'}])`
-
-```ts
-// main.ts
-// ...*/**
-
-import { rg } from 'rg-express';
-
-const routerGenerators = new rg(app);
-if ('development' === process.env.NODE_ENV) {
-  routerGenerators.runDevBuilder();
-}
-routerGenerators.init();
-app.listen(PORT, () => {
-  console.log(`Server is running on port http://localhost:${PORT}`);
-});
-```
-
-## and you can access file system routeing like nextjs

@@ -4,7 +4,6 @@ import * as path from 'path';
 export function createFile(filePath: string, fileContent: string) {
     filePath = filePath.replace(/\/\//g, '/').replace(/\/\/\//g, '/').replace(/\/\/\/\//g, '/')
     const directoryPath: string = path.dirname(filePath);
-    console.log('creating file ')
     // Ensure the directory exists, if not, create it
     if (!fs.existsSync(directoryPath)) {
         fs.mkdirSync(directoryPath, { recursive: true });

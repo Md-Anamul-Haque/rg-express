@@ -41,25 +41,19 @@ const makeCode = ({ startDirName }: nnProps, lang: 'ts' | 'js') => {
             fs.mkdirSync(startDirName, { recursive: true });
         }
         const fileList: string[] = readFiles('./' + startDirName, lang);
-        console.log({ fileList })
         let codes: string[] = [
             `//rg-express==>(nocrashsoft)\n import express, { Router } from 'express'; \n const router = Router()
             
             `
         ];
-        console.log('starting maketscode')
-
         const urlAndmethods = await getUrlAndmethods(fileList) as { filename: string; exportFunctions: string[] }[] || ['']
-        console.log({ urlAndmethods })
         const sourceCode = await getSourceCode(urlAndmethods, startDirName, lang)
-        console.log({ sourceCode })
         codes.push(sourceCode);
         if (lang == 'ts') {
             codes.push('\n\n\nexport default router')
         } else {
             codes.push('\n\n\nexports.default = router;')
         }
-        console.log({ codes })
         resolve(codes)
     });
 }

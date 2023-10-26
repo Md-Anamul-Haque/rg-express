@@ -13,19 +13,16 @@ const expressApp = express()
 const routerGenerator = async (lang: 'ts' | 'js', config?: nnProps) => {
   let startDirName = config?.startDirName || 'src';
   const RegexpStartDirName = new RegExp(`^/?${startDirName}/?`)
-  console.log({ RegexpStartDirName })
   startDirName = startDirName.replace(/^\/src/, 'src').replace(/\/$/, '');
   startDirName = startDirName.startsWith('src') ? startDirName : 'src/' + startDirName;
   const codes = await makeCode({ startDirName }, lang);
   // Call the function
-  console.log({ codes })
   const _routerFileNameAndPath = `${startDirName}/_router.${lang}`
   if (codes && Array.isArray(codes)) {
     createFile(_routerFileNameAndPath, codes.join('\n'));
   } else {
     console.warn({ codes: typeof codes })
   }
-  console.log(codes)
 
   return _routerFileNameAndPath.replace(RegexpStartDirName, '@')
 }
@@ -57,6 +54,7 @@ export class rg {
           console.log('Compiled successfully')
         } else {
           console.log('Compiling stop')
+          return;
         }
       } catch (error) {
         console.log('Compiling error...')
@@ -66,6 +64,7 @@ export class rg {
     setTimeout(handleInit, 100)
   };
   async runStudio() {
+    console.log('studio is running...')
     await studio(this.app, this.startDir, this.lang)
     const handleInit = async () => {
       try {

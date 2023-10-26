@@ -5,23 +5,27 @@ export const getUrlAndmethods: (fileList: string[]) => Promise<unknown> = (fileL
     return new Promise((resolve) => {
         let urlAndmethods: { filename: string; exportFunctions: string[] }[] = [];
         let pandingTask = fileList.length || 0;
-        fileList.forEach(filename => {
-            return (async () => {
-                console.log({ filename })
-                writeToFileSyncStartupCode(filename);
-                const exportFunctions = await import(filename)
-                urlAndmethods.push({
-                    filename: filename,
-                    exportFunctions: filterHttpMethods(Object.keys(exportFunctions))
-                });
-                pandingTask--;
-                if (pandingTask == 0) {
-                    resolve(urlAndmethods)
-                } else {
-                    console.log({ pandingTask })
-                }
-            })()
-        })
+        if (fileList && fileList.length) {
+            fileList.forEach(filename => {
+                return (async () => {
+                    writeToFileSyncStartupCode(filename);
+                    const exportFunctions = await import(filename)
+                    urlAndmethods.push({
+                        filename: filename,
+                        exportFunctions: filterHttpMethods(Object.keys(exportFunctions))
+                    });
+                    pandingTask--;
+                    if (pandingTask == 0) {
+                        resolve(urlAndmethods)
+                    }// else {
+                    //     console.log({ pandingTask })
+                    // }
+                })()
+            })
+        } else {
+            resolve([])
+        }
+
         console.log('getUrlAndmethods')
 
     })
