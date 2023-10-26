@@ -184,9 +184,14 @@ export const GET = [auth, authIsAdmin, getRequest]; // if you want to use middle
 
 ```ts
 // main.ts
-import { routerGenerators } from 'rg-express';
+import router from './_router';
 if ('development' === process.env.NODE_ENV) {
-  routerGenerators();
+  routerGenerators.runDevBuilder();
+  routerGenerators.runStudio();
+  // routerGenerators.init()
+  console.log('building');
+} else {
+  app.use(router);
 }
 ```
 

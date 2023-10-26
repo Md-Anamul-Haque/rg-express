@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "workspaces": [
     "packages/*"
   ],
@@ -37,15 +37,25 @@
   },
   "name": "rg-express",
   "author": "md-anamul-haque",
+  "bugs": {
+    "url": "https://github.com/Md-Anamul-Haque/rg-express/issues"
+  },
+  "homepage": "https://github.com/Md-Anamul-Haque/rg-express#readme",
+  "keywords": [
+    "rg-express",
+    "express",
+    "filebaseRouting",
+    "rg"
+  ],
   "module": "dist/gr-express.esm.js",
   "size-limit": [
     {
       "path": "dist/gr-express.cjs.production.min.js",
-      "limit": "10 KB"
+      "limit": "100 KB"
     },
     {
       "path": "dist/gr-express.esm.js",
-      "limit": "10 KB"
+      "limit": "100 KB"
     }
   ],
   "devDependencies": {
