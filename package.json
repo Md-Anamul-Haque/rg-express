@@ -47,14 +47,14 @@
     "filebaseRouting",
     "rg"
   ],
-  "module": "dist/gr-express.esm.js",
+  "module": "dist/rg-express.esm.js",
   "size-limit": [
     {
-      "path": "dist/gr-express.cjs.production.min.js",
+      "path": "dist/rg-express.cjs.production.min.js",
       "limit": "300 KB"
     },
     {
-      "path": "dist/gr-express.esm.js",
+      "path": "dist/rg-express.esm.js",
       "limit": "300 KB"
     }
   ],
