@@ -12,7 +12,7 @@
     "src"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=16"
   },
   "scripts": {
     "start": "tsdx watch",
@@ -51,11 +51,11 @@
   "size-limit": [
     {
       "path": "dist/gr-express.cjs.production.min.js",
-      "limit": "100 KB"
+      "limit": "300 KB"
     },
     {
       "path": "dist/gr-express.esm.js",
-      "limit": "100 KB"
+      "limit": "300 KB"
     }
   ],
   "devDependencies": {

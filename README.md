@@ -4,12 +4,6 @@
 
 > "এই লাইব্রেরিটি next.js এবং express থেকে অনুপ্রেরণা নিয়ে তৈরি করা হয়েছে, এক্সপ্রেসের স্বজ্ঞাত রাউটিং এবং মিডলওয়্যার সমর্থনের সাথে নেক্সট.js দক্ষ ফাইল সিস্টেম রিডিং এবং এপিআই রুট তৈরির সাথে নির্বিঘ্নে মিশ্রিত করা হয়েছে।
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with rg-express. Let’s get you oriented with what’s here and how to use it.
-
-> This rg-express setup is meant for developing libraries (not apps!) that can be published to NPM. If you’re looking to build a Node app, you could use `ts-node-dev`, plain `ts-node`, or simple `tsc`.
-
-> If you’re new to TypeScript, checkout [this handy cheatsheet](https://devhints.io/typescript)
-
 ```bash
 npm i rg-express
 # or
