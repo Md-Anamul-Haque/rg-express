@@ -1,0 +1,116 @@
+// import { NextFunction, Request, Response } from 'express-serve-static-core';
+// import QueryString from 'qs';
+// type handlerType = (req: Request<{}, any, any, QueryString.ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>, number>, next: NextFunction) => void
+// type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'TRACE';
+
+import express, { Router } from 'express';
+const router = Router()
+
+function handleRoute(method: string, routePath: string, handler: (express.RequestHandler | express.RequestHandler[])): void {
+    const handlers = Array.isArray(handler) ? handler : [handler];
+    switch (method) {
+        case 'GET':
+            router.get(routePath, ...handlers);
+            break;
+        case 'POST':
+            router.post(routePath, ...handlers);
+            break;
+        case 'PUT':
+            router.put(routePath, ...handlers);
+            break;
+        case 'DELETE':
+            router.delete(routePath, ...handlers);
+            break;
+        case 'PATCH':
+            router.patch(routePath, ...handlers);
+            break;
+        case 'HEAD':
+            router.head(routePath, ...handlers);
+            break;
+        case 'OPTIONS':
+            router.options(routePath, ...handlers);
+            break;
+        case 'TRACE':
+            router.trace(routePath, ...handlers);
+            break;
+    }
+}
+
+
+export function createRoute(method: string, routePath: string, handler: (express.RequestHandler | express.RequestHandler[])): void {
+    handleRoute(method, routePath, handler)
+}
+export const getCreateorRouteJs = `
+${handleRoute}
+${createRoute}`;
+export const getCreateorRoute = `
+
+import express, { Router } from 'express';
+const router = Router()
+
+function handleRoute(method: string, routePath: string, handler: (express.RequestHandler | express.RequestHandler[])): void {
+    switch (method) {
+        case 'GET':
+            router.get(routePath, handler);
+            break;
+        case 'POST':
+            router.post(routePath, handler);
+            break;
+        case 'PUT':
+            router.put(routePath, handler);
+            break;
+        case 'DELETE':
+            router.delete(routePath, handler);
+            break;
+        case 'PATCH':
+            router.patch(routePath, handler);
+            break;
+        case 'HEAD':
+            router.head(routePath, handler);
+            break;
+        case 'OPTIONS':
+            router.options(routePath, handler);
+            break;
+        case 'TRACE':
+            router.trace(routePath, handler);
+            break;
+    }
+}
+
+
+export function createRoute(method: string, routePath: string, handler: (express.RequestHandler | express.RequestHandler[])): void {
+    handleRoute(method, routePath, handler)
+}
+
+`
+
+
+
+export function getRouteMethodCode(method: string, routePath: string, handler: (express.RequestHandler | express.RequestHandler[])): void {
+    switch (method) {
+        case 'GET':
+            router.get(routePath, handler);
+            break;
+        case 'POST':
+            router.post(routePath, handler);
+            break;
+        case 'PUT':
+            router.put(routePath, handler);
+            break;
+        case 'DELETE':
+            router.delete(routePath, handler);
+            break;
+        case 'PATCH':
+            router.patch(routePath, handler);
+            break;
+        case 'HEAD':
+            router.head(routePath, handler);
+            break;
+        case 'OPTIONS':
+            router.options(routePath, handler);
+            break;
+        case 'TRACE':
+            router.trace(routePath, handler);
+            break;
+    }
+}
