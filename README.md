@@ -128,10 +128,8 @@ if ('development' === process.env.NODE_ENV) {
 
 ## api router handler
 
-> // src/hello/route.ts
-
 ```ts
-
+// src/hello/route.ts
 import { type Request, type Response } from 'express'
 const getRequest = async (req: Request, res: Response) => {
   res.send('hello')
@@ -143,9 +141,8 @@ export const GET = getRequest
 
 GET:http://localhost:4000/hello
 
-> src/user/[person]/route.ts
-
 ```ts
+// src/user/[person]/route.ts
 import { type Request, type Response } from 'express'
 const authUser =(req: Request, res: Response,next:NextFunction)=>{
   if(isvalid){
@@ -164,9 +161,8 @@ export const GET = [authUser,getUser]
 
 GET:http://localhost:4000/user/muhammad
 
-> /abc/[..slugs] / route.ts;
-
 ```ts
+// /abc/[..slugs] / route.ts;
 import { type Request, type Response } from 'express'
 
 const getRequest = async (req: Request, res: Response) => {

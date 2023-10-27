@@ -16,7 +16,7 @@ export async function studio(_app: typeof expressApp, startDirName: string, lang
     })
   });
   const studioApiRouteName = '_rg/studio/apis';
-  let codes = [`//rg-express==>(nocrashsoft)\n${lang == 'ts' && "import { Request, Response, Router } from 'express';"} \nconst router = Router(); `];
+  let codes = [`//rg-express\n${lang == 'ts' && "import { Request, Response, Router } from 'express';"} \nconst router = Router(); `];
   if (lang == 'ts') {
     codes.push(`let apiUrls: string[] = ["${apiUrls.join('","')}"]`)
     codes.push(`router.get('/${studioApiRouteName}', (_req: Request, res: Response) => {`)

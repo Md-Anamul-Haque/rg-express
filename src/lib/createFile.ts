@@ -6,16 +6,15 @@ export function createFile(filePath: string, fileContent: string) {
     const directoryPath: string = path.dirname(filePath);
     // Ensure the directory exists, if not, create it
     if (!fs.existsSync(directoryPath)) {
-        fs.mkdirSync(directoryPath, { recursive: true });
+        fs.mkdirSync(path.join(directoryPath), { recursive: true });
     }
 
     // delete this file
     if (fs.existsSync(filePath)) {
         const existingContent = fs.readFileSync(filePath, 'utf8').trim();
         const isSameCode = (JSON.stringify(existingContent) === JSON.stringify(fileContent.trim()))
-        // console.log({ isSameCode, existingContent, fileContent })
         if (isSameCode) {
-            console.log('Content already exists in the file. Skipping write operation.');
+            // console.log('Content already exists in the file. Skipping write operation.');
             return filePath
         }// else {
         //     fs.unlinkSync(filePath);

@@ -23,9 +23,7 @@ export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
             // console.log({ regexp })
             const fname = filePath.split('/').at(-1) || '';
 
-            console.log(/^route\.(ts|js)$/.test(fname))
             if (/^route\.(ts|js)$/.test(fname)) {
-                console.log({ filePath })
                 fileList.push(filePath);
             }
         }
@@ -34,10 +32,8 @@ export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
     fileList.forEach(file => {
         file = file.replace(/\\/g, '/')
         if (/route\.(ts|js)$/.test(file)) {
-            console.log({ file })
             endFileList.push(file)
         }
     });
-    console.log({ endFileList })
     return endFileList;
 }

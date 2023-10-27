@@ -26,8 +26,6 @@ export const getUrlAndmethods: (fileList: string[]) => Promise<unknown> = (fileL
             resolve([])
         }
 
-        console.log('getUrlAndmethods')
-
     })
 
 

@@ -57,7 +57,6 @@ export class rg {
           return;
         }
       } catch (error) {
-        console.log('Compiling error...')
         console.log(error)
       }
     };
