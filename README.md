@@ -1,8 +1,8 @@
-# rg-express(route generator express) user guide
+# rg-express(route generator in express) user guide
 
-> "This library is crafted with inspiration from Next.js and Express, seamlessly blending the efficient file system reading and API route creation of Next.js with the intuitive routing and middleware support of Express."
+> এই লাইব্রেরিটি next.js এবং express থেকে অনুপ্রেরণা নিয়ে তৈরি করা হয়েছে ৷
 
-> "এই লাইব্রেরিটি next.js এবং express থেকে অনুপ্রেরণা নিয়ে তৈরি করা হয়েছে, এক্সপ্রেসের স্বজ্ঞাত রাউটিং এবং মিডলওয়্যার সমর্থনের সাথে নেক্সট.js দক্ষ ফাইল সিস্টেম রিডিং এবং এপিআই রুট তৈরির সাথে নির্বিঘ্নে মিশ্রিত করা হয়েছে।
+> This library is inspired by next.js and express.
 
 ```bash
 npm i rg-express
@@ -34,7 +34,7 @@ project-directory
 
 ```
 
-> \_router.ts // this file can make auto on startDirName like src or any, but default is src
+> This(\_router.ts ) file can be automatically created at startDirName such as src or any, but the default is src
 
 ### how to setup on typescript
 
@@ -69,13 +69,18 @@ app.use(router);
 ```
 
 > both (development | production)
+> But in this case the first thing to do is turn on the development mode recommended.
+
+It is just for the first time to launch so that you get a clear idea.
+
+But when you start your work follow the setup below.
 
 ```ts
 // main.ts
 // both (development | production)
 import express from 'express';
 import { rg } from 'rg-express';
-import router from './_router'; // when first starting then skip this
+import router from './_router';
 
 const app = express();
 const routerGenerators = new rg(app);
@@ -83,7 +88,7 @@ if ('development' === process.env.NODE_ENV) {
   routerGenerators.runDevBuilder();
   routerGenerators.init();
 } else {
-  app.use(router); // when first starting then skip this
+  app.use(router);
 }
 // ... other code
 ```
