@@ -42,7 +42,7 @@ project-directory
 
 > only development
 
-```ts
+```typescript
 // main.ts
 // only development
 import express from 'express';
@@ -58,7 +58,7 @@ if ('development' === process.env.NODE_ENV) {
 
 > only production
 
-```ts
+```typescript
 // main.ts
 // only production
 import express from 'express';
@@ -69,13 +69,14 @@ app.use(router);
 ```
 
 > both (development | production)
-> But in this case the first thing to do is turn on the development mode recommended.
+
+But in this case the first thing to do is turn on the development mode recommended.
 
 It is just for the first time to launch so that you get a clear idea.
 
 But when you start your work follow the setup below.
 
-```ts
+```typescript
 // main.ts
 // both (development | production)
 import express from 'express';
@@ -93,31 +94,7 @@ if ('development' === process.env.NODE_ENV) {
 // ... other code
 ```
 
-### package.json config
-
-```json
-// package.json
-...,
-  "scripts": {
-    "dev": "NODE_ENV=development nodemon --watch 'src/**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/main.ts",
-    "start": "ts-node src/main.ts",
-    // ... other scripts hear
-  },
-
-```
-
-#### #or
-
-```json
-// package.json
-...,
-  "scripts": {
-    "dev": "NODE_ENV=development nodemon --watch 'src/**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/main.ts",
-    "build": "tsc",
-    "start": "node dist/main.js",
-    // ... other scripts hear
-  },
-```
+> <code><pre>if you get any error in \_router.ts the delete this \_router.ts<pre>... error in \_router.ts/js </code>
 
 ## .eslintignore
 
@@ -128,7 +105,7 @@ if ('development' === process.env.NODE_ENV) {
 
 ## api router handler
 
-```ts
+```typescript
 // src/hello/route.ts
 import { type Request, type Response } from 'express'
 const getRequest = async (req: Request, res: Response) => {
@@ -141,7 +118,7 @@ export const GET = getRequest
 
 GET:http://localhost:4000/hello
 
-```ts
+```typescript
 // src/user/[person]/route.ts
 import { type Request, type Response } from 'express'
 const authUser =(req: Request, res: Response,next:NextFunction)=>{
@@ -161,7 +138,7 @@ export const GET = [authUser,getUser]
 
 GET:http://localhost:4000/user/muhammad
 
-```ts
+```typescript
 // /abc/[..slugs] / route.ts;
 import { type Request, type Response } from 'express'
 
@@ -180,7 +157,7 @@ GET:http://localhost:3000/abc/n/o/c/r/a/s/h/s/o/f/t
 
 ### use middlewares
 
-```ts
+```typescript
 // route.ts
 export const GET = [auth, getUser]; // if you want to use middlewares
 export const POST = [auth, authIsAdmin, newUser]; // if you want to use middlewares
@@ -205,7 +182,7 @@ default is {lang:'ts'}
 
 ### how to set start folder
 
-```ts
+```typescript
 // this is default
 const routerGenerators = new rg(app, { startDirName: 'src' });
 ```
