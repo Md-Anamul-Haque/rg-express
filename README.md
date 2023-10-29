@@ -94,7 +94,8 @@ if ('development' === process.env.NODE_ENV) {
 // ... other code
 ```
 
-> <code><pre>if you get any error in \_router.ts the delete this \_router.ts<pre>... error in \_router.ts/js </code>
+> <code><pre>if you get any error in \_router.ts then delete this \_router.ts
+> don't wary this file created automatically after run 'routerGenerators.runDevBuilder();' <pre>... error in \_router.ts/js </code>
 
 ## .eslintignore
 
