@@ -3,7 +3,7 @@
   "workspaces": [
     "packages/*"
   ],
-  "version": "0.1.61",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -45,7 +45,8 @@
     "rg-express",
     "express",
     "filebaseRouting",
-    "rg"
+    "rg",
+    "api-studio"
   ],
   "module": "dist/rg-express.esm.js",
   "size-limit": [
@@ -60,7 +61,9 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^10.0.1",
+    "@types/ejs": "^3.1.5",
     "@types/express": "^4.17.20",
+    "express": "^4.18.2",
     "husky": "^8.0.3",
     "size-limit": "^10.0.1",
     "tsdx": "^0.14.1",
@@ -68,6 +71,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "ejs": "^3.1.9"
   }
 }
