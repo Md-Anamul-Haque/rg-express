@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export function createFile(filePath: string, fileContent: string) {
+    // return new Promise((resolve, reject) => {
     filePath = filePath.replace(/\/\//g, '/').replace(/\/\/\//g, '/').replace(/\/\/\/\//g, '/')
     const directoryPath: string = path.dirname(filePath);
     // Ensure the directory exists, if not, create it
@@ -21,10 +22,16 @@ export function createFile(filePath: string, fileContent: string) {
         // }
     }
 
-    fs.writeFile(filePath, fileContent, (err) => {
-        if (err) {
-            throw err;
-        }
-    });
+    // fs.writeFile(filePath, fileContent, (err) => {
+    //     if (err) {
+    //         // reject(err)
+    //         throw err;
+    //     } //else {
+    //     //     resolve(filePath)
+    //     // }
+    // });
+    fs.writeFileSync(filePath, fileContent);
+
     return filePath
+    // })
 }

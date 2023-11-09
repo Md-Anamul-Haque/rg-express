@@ -94,6 +94,39 @@ if ('development' === process.env.NODE_ENV) {
 // ... other code
 ```
 
+#### if you want better feel with development and production follow this
+
+```ts
+import { rg } from 'rg-express';
+const app = express();
+
+const routerGenerators = new rg(app, {
+  startDirName: '[your api folder path]',
+});
+const appInit = async () => {
+  if ('development' === process.env.NODE_ENV) {
+    await routerGenerators.runDevBuilder();
+    await routerGenerators.init();
+    await routerGenerators.runStudio();
+  } else {
+    const router = await import('[your path]/_router'); // make sure this file name
+    app.use(router.default);
+  }
+
+  // app.[your some options with app]
+
+  //--------------- app route not found error-----------------------
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    return res.send('route not found');
+  });
+  //-----------------app server error----------------------
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    return res.send('APP INTERNAL SERVER ERROR');
+  });
+};
+appInit();
+```
+
 > <code><pre>if you get any error in \_router.ts then delete this \_router.ts
 > don't wary this file created automatically after run 'routerGenerators.runDevBuilder();' <pre>... error in \_router.ts/js </code>
 
