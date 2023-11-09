@@ -49,11 +49,14 @@ import express from 'express';
 import { rg } from 'rg-express';
 const app = express();
 const routerGenerators = new rg(app);
-if ('development' === process.env.NODE_ENV) {
-  routerGenerators.runDevBuilder();
-  routerGenerators.init();
-}
-// ... other code
+const appInit = async () => {
+  if ('development' === process.env.NODE_ENV) {
+    await routerGenerators.runDevBuilder();
+    await routerGenerators.init();
+  }
+  // ... other code
+};
+appInit();
 ```
 
 > only production
@@ -85,12 +88,16 @@ import router from './_router';
 
 const app = express();
 const routerGenerators = new rg(app);
-if ('development' === process.env.NODE_ENV) {
-  routerGenerators.runDevBuilder();
-  routerGenerators.init();
-} else {
-  app.use(router);
-}
+const appInit = async () => {
+  if ('development' === process.env.NODE_ENV) {
+    await routerGenerators.runDevBuilder();
+    await routerGenerators.init();
+  } else {
+    app.use(router);
+  }
+  // ... other code
+};
+appInit();
 // ... other code
 ```
 
