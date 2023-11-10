@@ -48,9 +48,9 @@ project-directory
 import express from 'express';
 import { rg } from 'rg-express';
 const app = express();
-const routerGenerators = new rg(app);
 const appInit = async () => {
   if ('development' === process.env.NODE_ENV) {
+    const routerGenerators = new rg(app);
     await routerGenerators.runDevBuilder();
     await routerGenerators.init();
   }
@@ -87,9 +87,9 @@ import { rg } from 'rg-express';
 import router from './_router';
 
 const app = express();
-const routerGenerators = new rg(app);
 const appInit = async () => {
   if ('development' === process.env.NODE_ENV) {
+    const routerGenerators = new rg(app);
     await routerGenerators.runDevBuilder();
     await routerGenerators.init();
   } else {
@@ -107,11 +107,11 @@ appInit();
 import { rg } from 'rg-express';
 const app = express();
 
-const routerGenerators = new rg(app, {
-  startDirName: '[your api folder path]',
-});
 const appInit = async () => {
   if ('development' === process.env.NODE_ENV) {
+    const routerGenerators = new rg(app, {
+      startDirName: '[your api folder path]',
+    });
     await routerGenerators.runDevBuilder();
     await routerGenerators.init();
     await routerGenerators.runStudio();
