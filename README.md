@@ -46,15 +46,9 @@ project-directory
 // builder.ts
 // only development
 import { rg } from 'rg-express';
-const runBuilder = async () => {
-  if ('development' === process.env.NODE_ENV) {
-    const routerGenerators = new rg();
-    await routerGenerators.runDevBuilder();
-    // build success
-  }
-  // ... other code
-};
-runBuilder();
+const routerGenerators = new rg();
+routerGenerators.runDevBuilder();
+// ... other code
 ```
 
 ```josn
