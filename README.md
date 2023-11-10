@@ -34,11 +34,43 @@ project-directory
 
 ```
 
-> This(\_router.ts ) file can be automatically created at startDirName such as src or any, but the default is src
+> This(\_router.ts ) file can be automatically created at startDir such as src or any, but the default is src
 
 ### how to setup on typescript
 
-## setup <i><u>main.ts<u></i>
+## setup just builder
+
+> only development
+
+```typescript
+// builder.ts
+// only development
+import { rg } from 'rg-express';
+const runBuilder = async () => {
+  if ('development' === process.env.NODE_ENV) {
+    const routerGenerators = new rg();
+    await routerGenerators.runDevBuilder();
+    // build success
+  }
+  // ... other code
+};
+runBuilder();
+```
+
+```josn
+<!-- package.json -->
+"rgbuil":"nodemon builder.ts",
+# ...
+```
+
+```bash
+yarn rgbuil
+or
+npm run rgbuil
+
+```
+
+## setup with my app <i><u>main.ts<u></i>
 
 > only development
 
@@ -50,9 +82,9 @@ import { rg } from 'rg-express';
 const app = express();
 const appInit = async () => {
   if ('development' === process.env.NODE_ENV) {
-    const routerGenerators = new rg(app);
+    const routerGenerators = new rg();
     await routerGenerators.runDevBuilder();
-    await routerGenerators.init();
+    await routerGenerators.init(app);
   }
   // ... other code
 };
@@ -89,9 +121,9 @@ import router from './_router';
 const app = express();
 const appInit = async () => {
   if ('development' === process.env.NODE_ENV) {
-    const routerGenerators = new rg(app);
+    const routerGenerators = new rg();
     await routerGenerators.runDevBuilder();
-    await routerGenerators.init();
+    await routerGenerators.init(app);
   } else {
     app.use(router);
   }
@@ -109,12 +141,12 @@ const app = express();
 
 const appInit = async () => {
   if ('development' === process.env.NODE_ENV) {
-    const routerGenerators = new rg(app, {
-      startDirName: '[your api folder path]',
+    const routerGenerators = new rg({
+      startDir: 'your api dir name ("src" | "api/"|"src/api")',
     });
     await routerGenerators.runDevBuilder();
-    await routerGenerators.init();
-    await routerGenerators.runStudio();
+    await routerGenerators.init(app);
+    await routerGenerators.runStudio(app);
   } else {
     const router = await import('[your path]/_router'); // make sure this file name
     app.use(router.default);
@@ -214,7 +246,7 @@ export const DELETE = [auth, authIsAdmin, deleteUser]; // if you want to use mid
 
 ```js
 // ... pree code
-const routerGenerators = new rg(app, { lang: 'js' });
+const routerGenerators = new rg({ lang: 'js' });
 
 // ... other
 ```
@@ -225,5 +257,5 @@ default is {lang:'ts'}
 
 ```typescript
 // this is default
-const routerGenerators = new rg(app, { startDirName: 'src' });
+const routerGenerators = new rg({ startDir: 'src' });
 ```

@@ -6,13 +6,13 @@ import { handleStudio_ApiList } from './apis/handleStudio_ApiList';
 import { handleViewStudio } from './handleViewStudio';
 const expressApp = express()
 
-export async function studio(app: typeof expressApp, startDirName: string, lang: 'ts' | 'js', fileList: string[] = []) {
-  fileList = fileList.length ? fileList : readFiles('./' + startDirName, lang);
+export async function studio(app: typeof expressApp, startDir: string, lang: 'ts' | 'js', fileList: string[] = []) {
+  fileList = fileList.length ? fileList : readFiles('./' + startDir, lang);
   const urlAndmethods = await getUrlAndmethods(fileList) as { filename: string; exportFunctions: string[] }[] || ['']
 
   let apiUrls: string[] = [];
   urlAndmethods.forEach(({ filename, exportFunctions }) => {
-    let apiUrl = createRoutePath({ name: filename, startDirName: startDirName }, lang)
+    let apiUrl = createRoutePath({ name: filename, startDir: startDir }, lang)
     exportFunctions.forEach(method => {
       apiUrls.push(`${method.toLowerCase()}:${apiUrl}`)
     })

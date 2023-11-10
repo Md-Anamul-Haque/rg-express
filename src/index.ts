@@ -1,5 +1,7 @@
 import express from 'express';
 import { createFile } from './lib/createFile';
+import { processConsole } from './lib/processConsole';
+import { normalizePath } from './lib/utils';
 import makeCode from './makeCode';
 import { studio } from './studio';
 import { routerGenerator_ConfigProps } from './types';
@@ -12,72 +14,73 @@ type Application = typeof expressApp;
 
 
 
-const routerGenerator = async (lang: 'ts' | 'js', config?: routerGenerator_ConfigProps) => {
-  let startDirName = config?.startDirName || 'src';
-  const RegexpStartDirName = new RegExp(`^/?${startDirName}/?`)
-  startDirName = startDirName.replace(/^\/src/, 'src').replace(/\/$/, '');
-  startDirName = startDirName.startsWith('src') ? startDirName : 'src/' + startDirName;
-  const { codes, fileList } = await makeCode({ startDirName }, lang);
+const routerGenerator = async (lang: 'ts' | 'js', config: routerGenerator_ConfigProps) => {
+  let startDir = config.startDir;
+  const { codes, fileList } = await makeCode({ startDir }, lang);
   // Call the function
-  const _routerFileNameAndPath = `${startDirName}/_router.${lang}`
+  const _routerFileNameAndPath = `${startDir}/_router.${lang}`;
+  console.log({ _routerFileNameAndPath })
   if (codes && Array.isArray(codes)) {
     createFile(_routerFileNameAndPath, codes.join('\n'));
   } else {
     console.log('\x1b[33m%s\x1b[0m', { codes: typeof codes });  // Yellow text
   }
 
-  return ({ fileList, _routerFileNameAndPath: _routerFileNameAndPath.replace(RegexpStartDirName, '@') })
+  return ({ fileList, _routerFileNameAndPath: _routerFileNameAndPath })
 }
 
 
 export class rg {
-  private app: Application;
-  private config?: { startDirName: string; };
+  private config: { startDir: string; };
   private startDir: string;
   private lang: 'ts' | 'js';
   private fileList?: string[];
-  constructor(app: Application, config?: { startDirName?: string; lang?: 'ts' | 'js' }) {
-    this.app = app;
-    this.config = { startDirName: config?.startDirName || 'src' };
-    this.startDir = config?.startDirName || 'src';
+  constructor(config?: { startDir?: string; lang?: 'ts' | 'js' }) {
+    this.config = { startDir: normalizePath(config?.startDir || 'src') };
+    this.startDir = normalizePath(config?.startDir || 'src');
     this.lang = config?.lang || 'ts';
   }
 
 
   runDevBuilder() {
+    const devBuildProcessConsole = new processConsole()
     return new Promise(async (resolve) => {
+      devBuildProcessConsole.start('building..');
       const { _routerFileNameAndPath, fileList } = await routerGenerator(this.lang, this.config);
       this.fileList = fileList;
+      devBuildProcessConsole.complete('build successfully')
       resolve(_routerFileNameAndPath);
-    })
+    });
   };
-  init() {
+  init(app: Application) {
     return new Promise(async (resolve, reject) => {
+      const initProcessConsole = new processConsole()
       try {
-        console.log('\x1b[34m%s\x1b[0m', 'Compiling..'); // Blue text
+        initProcessConsole.start('app initalizing...');
         const router = await import(`${this.startDir}/_router`)
         if (router) {
-          this.app?.use(router.default)
-          console.log('\x1b[32m%s\x1b[0m', 'Compiled successfully'); // Green text
+          app?.use(router.default)
+          initProcessConsole.complete('app initialized');
         } else {
-          console.log('\x1b[33m%s\x1b[0m', 'Compiling stop');  // Yellow text
-          reject('Compiling stop');
+          initProcessConsole.error('app initalizing stop')
+          reject('app initalizing stop');
         }
-        resolve(this.app)
+        resolve(app)
       } catch (error) {
-        console.log('\x1b[31m%s\x1b[0m', error); // Red text
+        initProcessConsole.error((error as any)?.message || 'error init')
       }
     })
   };
-  runStudio() {
+  runStudio(app: Application) {
+    const studioProcessConsole = new processConsole();
     return new Promise(async (resolve, reject) => {
       try {
-        console.log('\x1b[34m%s\x1b[0m', 'studio is running...'); // Blue text
-        await studio(this.app, this.startDir, this.lang, this.fileList)
-        console.log('\x1b[32m%s\x1b[0m', `studio run at "[::1]:[PORT]/_rg/studio"`); // Green text
-        resolve('/_rg/studio')
+        studioProcessConsole.start('studio is running...');
+        await studio(app, this.startDir, this.lang, this.fileList);
+        studioProcessConsole.complete(`studio run at "[::1]:[PORT]/_rg/studio"`);
+        resolve('/_rg/studio');
       } catch (error) {
-        console.log('\x1b[31m%s\x1b[0m', error); // Red text
+        studioProcessConsole.error((error as any)?.message || 'error init')
         reject(error)
       }
     })

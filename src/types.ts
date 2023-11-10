@@ -3,5 +3,5 @@
 //     host?: string;
 // };
 export interface routerGenerator_ConfigProps {
-    startDirName: string;
+    startDir: string;
 };
