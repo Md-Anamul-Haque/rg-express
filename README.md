@@ -161,7 +161,7 @@ appInit();
 ```
 
 > <code><pre>if you get any error in \_router.ts then delete this \_router.ts
-> don't wary this file created automatically after run 'routerGenerators.runDevBuilder();' <pre>... error in \_router.ts/js </code>
+> don't wary this file created automatically after run 'routerGenerators.runDevBuilder();' <pre>... error in \_router.ts </code>
 
 ## .eslintignore
 
@@ -231,21 +231,6 @@ export const POST = [auth, authIsAdmin, newUser]; // if you want to use middlewa
 export const PUT = [auth, authIsAdmin, updateUser]; // if you want to use middlewares
 export const DELETE = [auth, authIsAdmin, deleteUser]; // if you want to use middlewares
 ```
-
-## javascript
-
-### how to setup on javascript
-
-## setup <i><u>main.js<u></i>
-
-```js
-// ... pree code
-const routerGenerators = new rg({ lang: 'js' });
-
-// ... other
-```
-
-default is {lang:'ts'}
 
 ### how to set start folder
 

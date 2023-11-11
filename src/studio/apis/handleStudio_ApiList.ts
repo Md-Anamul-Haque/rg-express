@@ -89,7 +89,7 @@ export const handleStudio_ApiList = async ({ apiUrls }: { apiUrls: string[] }) =
                         </span>
                         <a class="<%= item.split(':')?.[0]?.toUpperCase() %>"
                             href="<%= item.split(':').slice(1).join('/').replace('//','/') %>">
-                            <%= item.replace(/^(GET| POST| PUT| PATCH| DELETE| HEAD):/i,'') %>
+                            <%= item.replace(/^(GET| POST| PUT| PATCH| DELETE| HEAD| OPTIONS):/i,'') %>
                         </a>
                     </li>
                     <% } else { %>
@@ -98,7 +98,7 @@ export const handleStudio_ApiList = async ({ apiUrls }: { apiUrls: string[] }) =
                                 <%= item.split(':')?.[0] %>:
                             </span>
                             <p class="<%= item.split(':')?.[0]?.toUpperCase() %>">
-                                <%= item.replace(/^(GET| POST| PUT| PATCH| DELETE| HEAD):/i,'') %>
+                                <%= item.replace(/^(GET| POST| PUT| PATCH| DELETE| HEAD| OPTIONS):/i,'') %>
                             </p>
                         </li>
                         <% } %>

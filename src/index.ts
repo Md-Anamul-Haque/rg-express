@@ -33,9 +33,9 @@ const routerGenerator = async (lang: 'ts' | 'js', config: routerGenerator_Config
 export class rg {
   private config: { startDir: string; };
   private startDir: string;
-  private lang: 'ts' | 'js';
+  private lang: 'ts';
   private fileList?: string[];
-  constructor(config?: { startDir?: string; lang?: 'ts' | 'js' }) {
+  constructor(config?: { startDir?: string; lang?: 'ts' }) {
     this.config = { startDir: normalizePath(config?.startDir || 'src') };
     this.startDir = normalizePath(config?.startDir || 'src');
     this.lang = config?.lang || 'ts';

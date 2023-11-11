@@ -6,7 +6,7 @@ import { handleStudio_ApiList } from './apis/handleStudio_ApiList';
 import { handleViewStudio } from './handleViewStudio';
 const expressApp = express()
 
-export async function studio(app: typeof expressApp, startDir: string, lang: 'ts' | 'js', fileList: string[] = []) {
+export async function studio(app: typeof expressApp, startDir: string, lang: 'ts', fileList: string[] = []) {
   fileList = fileList.length ? fileList : readFiles('./' + startDir, lang);
   const urlAndmethods = await getUrlAndmethods(fileList) as { filename: string; exportFunctions: string[] }[] || ['']
 
