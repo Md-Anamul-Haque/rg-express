@@ -104,8 +104,6 @@ app.use(rg.routes(__dirname + '/src'));
 node app.js
 ```
 
-## route path make as it is >
-
 ### Project Structure
 
 This project follows a modular structure to organize its codebase efficiently. Below is an overview of the key directories and their purposes:

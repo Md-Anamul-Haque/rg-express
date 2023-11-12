@@ -20,7 +20,7 @@ const routerGenerator = async (lang: 'ts' | 'js', config: routerGenerator_Config
   const { codes, fileList } = await makeCode({ startDir }, lang);
   // Call the function
   const _routerFileNameAndPath = `${startDir}/_router.${lang}`;
-  console.log({ _routerFileNameAndPath })
+  // console.log({ _routerFileNameAndPath })
   if (codes && Array.isArray(codes)) {
     createFile(_routerFileNameAndPath, codes.join('\n'));
   } else {

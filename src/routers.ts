@@ -1,13 +1,15 @@
 import { Router } from 'express';
+import { processConsole } from './lib/processConsole';
 import { readFiles } from "./lib/readFiles";
 import { createRoutePath, filterHttpMethods } from "./lib/utils";
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
 export type routesProps = (string | { baseDir: string; });
 export const routes = (config: routesProps) => {
+    const plog = new processConsole();
+    plog.start('routes processing...');
     const startDir = `${typeof config == 'string' ? config : config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
     const router = Router();
     const lang = '(ts|js)';
-    console.log({ startDir })
     const fileList: string[] = readFiles(startDir, lang);
     if (fileList && fileList.length) {
         fileList.forEach(filename => {
@@ -21,6 +23,7 @@ export const routes = (config: routesProps) => {
             });
         });
     }
+    plog.complete('routes processing complete');
     return router;
 };
 
