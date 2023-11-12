@@ -17,7 +17,7 @@ project-directory
     ├── package.json
     ├── routes
     │   ├──hello
-    │   │   ├── route.js / ts -> GET,POST
+    │   │   ├── route.js / ts -> export GET,POST...
     │   │   └── ...
     │   ├──product
     │   │   ├── route.js / ts
@@ -31,6 +31,8 @@ project-directory
     └── ...
 
 ```
+
+> export methods (GET,POST,PUT,DELETE,PATCH,OPTIONS,HEAD,CONNECT,TRACE,COPY,LOCK,MOVE,UNLOCK,PROPFIND,PROPPATCH,MKCOL,CHECKOUT,SEARCH)
 
 ```js
 // app.js
@@ -215,9 +217,9 @@ Happy coding!
 <br />
 <br />
 
-## legacy
+## old way
 
-## project setup with Typescript --(legacy)
+## project setup with Typescript --(old way)
 
 ```
 project-directory

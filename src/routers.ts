@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { processConsole } from './lib/processConsole';
 import { readFiles } from "./lib/readFiles";
-import { createRoutePath, filterHttpMethods } from "./lib/utils";
+import { createRoutePath, filterAndLowercaseHttpMethods } from "./lib/utils";
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
 export type routesProps = (string | { baseDir: string; });
 export const routes = (config: routesProps) => {
@@ -16,10 +16,9 @@ export const routes = (config: routesProps) => {
             writeToFileSyncStartupCode(filename);
             let apiUrl = createRoutePath({ name: filename, startDir: startDir }, lang)
             const exportFunctions = require(filename);
-            const filteredHttpMethods = filterHttpMethods(Object.keys(exportFunctions));// 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'
+            const filteredHttpMethods = filterAndLowercaseHttpMethods(Object.keys(exportFunctions));// 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace' | 'copy' | 'lock' | 'move' | 'unlock' | 'propfind' | 'proppatch' | 'mkcol' | 'checkout' | 'search'
             filteredHttpMethods.forEach(method => {
-                // @ts-ignore
-                router[method.toLowerCase()](apiUrl, exportFunctions[method])
+                router[method](apiUrl, exportFunctions[method])
             });
         });
     }

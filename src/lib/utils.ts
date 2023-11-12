@@ -15,11 +15,16 @@ export function createRoutePath({ name, startDir }: { name: string, startDir: st
     route = route.replace(/\[\.\.\.(\w+)\]/g, '*');
     return route
 }
-
-export const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD']
+export const httpMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE', 'COPY', 'LOCK', 'MOVE', 'UNLOCK', 'PROPFIND', 'PROPPATCH', 'MKCOL', 'CHECKOUT', 'SEARCH']
 
 export function filterHttpMethods(inputArray: string[]): string[] {
     return inputArray.filter(method => httpMethods.includes(method));
+}
+type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace' | 'copy' | 'lock' | 'move' | 'unlock' | 'propfind' | 'proppatch' | 'mkcol' | 'checkout' | 'search';
+
+export function filterAndLowercaseHttpMethods(inputArray: string[]): HttpMethod[] {
+    return inputArray.filter(method => httpMethods.includes(method))
+        .map(method => method.toLowerCase()) as HttpMethod[];
 }
 
 export function normalizePath(url: string): string {
