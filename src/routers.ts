@@ -18,7 +18,7 @@ export const routes = (config: routesProps) => {
             const exportFunctions = require(filename);
             const filteredHttpMethods = filterAndLowercaseHttpMethods(Object.keys(exportFunctions));// 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace' | 'copy' | 'lock' | 'move' | 'unlock' | 'propfind' | 'proppatch' | 'mkcol' | 'checkout' | 'search'
             filteredHttpMethods.forEach(method => {
-                router[method](apiUrl, exportFunctions[method])
+                router[method](apiUrl, exportFunctions[method.toUpperCase()])
             });
         });
     }
