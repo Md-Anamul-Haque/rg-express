@@ -3,7 +3,7 @@
   "workspaces": [
     "packages/*"
   ],
-  "version": "0.5.44",
+  "version": "0.5.5",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
