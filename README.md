@@ -10,7 +10,121 @@ npm i rg-express
 yarn add rg-express
 ```
 
-## project setup
+## setup with new way
+
+```
+project-directory
+    ├── package.json
+    ├── routes
+    │   ├──hello
+    │   │   ├── route.js / ts -> GET,POST
+    │   │   └── ...
+    │   ├──product
+    │   │   ├── route.js / ts
+    │   │   └── ...
+    │   ├──<any-api-name>
+    │   │   ├── route.js / ts
+    │   │   └── ...
+    │   └── ..
+    ├──app.js / ts
+    └── ...
+
+```
+
+```js
+// app.js
+const express = require('express');
+
+const rg = require('rg-express');
+const app = express();
+app.use(rg.routes(__dirname));
+
+app.listen(8001, () => {
+  console.log('server is running at http://localhost:8001');
+});
+```
+
+```ts
+// app.ts
+import express from 'express';
+import rg from 'rg-express';
+const app = express();
+app.use(rg.routes(__dirname));
+
+app.listen(8001, () => {
+  console.log('server is running at http://localhost:8001');
+});
+```
+
+```bash
+node app.js
+```
+
+## with src
+
+```
+
+project-directory
+      ├── package.json
+      ├── src
+            ├──routes
+            │     ├─hello
+            │     │   ├── route.ts/js
+            │     │   └── ...
+            │     ├──product
+            │     │    ├── route.ts/js
+            │     │    └── ...
+            │     └──<any-api-name>
+            │          └── route.ts/js
+            ├──app.ts/js
+
+
+```
+
+```bash
+node src/app.js
+```
+
+> or
+> <br />
+> when routes dir is my-project/src/routes
+> <br />
+> and application file is my-project/app.js
+
+```js
+// my-project/app.js/ts
+// ...
+// when routes is my-project/src/routes
+app.use(rg.routes(__dirname + '/src'));
+// ...
+```
+
+```bash
+node app.js
+```
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+## legacy
+
+## project setup with Typescript --(legacy)
 
 ```
 project-directory

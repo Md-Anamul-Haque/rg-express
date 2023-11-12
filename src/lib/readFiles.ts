@@ -5,7 +5,7 @@ import * as path from 'path';
 
 
 
-export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
+export function readFiles(directoryPath: string, lang: 'ts' | 'js' | '(ts|js)'): string[] {
     const files: string[] = fs.readdirSync(directoryPath);
     const fileList: string[] = [];
 
@@ -17,22 +17,37 @@ export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
             const subFiles: string[] = readFiles(filePath, lang);
             fileList.push(...subFiles);
         } else {
-            // If it's a file, add its path to the list
-            // console.log({ filePath })
-            // const regexp = new RegExp(`route.${lang}$`)
-            // console.log({ regexp })
             const fname = filePath.split('/').at(-1) || '';
-
-            if (/^route\.(ts|js)$/.test(fname)) {
-                fileList.push(filePath);
+            if (lang == '(ts|js)') {
+                if (/^route\.(ts|js)$/.test(fname)) {
+                    fileList.push(filePath);
+                }
+            } else if (lang == 'ts') {
+                if (/^route\.ts$/.test(fname)) {
+                    fileList.push(filePath);
+                }
+            } else if (lang == 'js') {
+                if (/^route\.js$/.test(fname)) {
+                    fileList.push(filePath);
+                }
             }
         }
     });
     let endFileList: string[] = []
     fileList.forEach(file => {
         file = file.replace(/\\/g, '/')
-        if (/route\.(ts|js)$/.test(file)) {
-            endFileList.push(file)
+        if (lang == '(ts|js)') {
+            if (/route\.(ts|js)$/.test(file)) {
+                endFileList.push(file)
+            }
+        } else if (lang == 'ts') {
+            if (/route\.ts$/.test(file)) {
+                endFileList.push(file)
+            }
+        } else if (lang == 'js') {
+            if (/route\.js$/.test(file)) {
+                endFileList.push(file)
+            }
         }
     });
     return endFileList;

@@ -5,7 +5,7 @@ export function createValidVariableName(name: string): string {
     const validName = name.replace(/[^a-zA-Z0-9_$]/g, '_');
     return validName;
 }
-export function createRoutePath({ name, startDir }: { name: string, startDir: string }, lang: 'ts' | 'js'): string {
+export function createRoutePath({ name, startDir }: { name: string, startDir: string }, lang: 'ts' | 'js' | '(ts|js)'): string {
     let route = name;
     const regexpRouteFileName = new RegExp(`/?route.${lang}$`)
     const RegexpStartDir = new RegExp(`^/?${startDir}/?`)

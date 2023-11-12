@@ -3,6 +3,7 @@ import { createFile } from './lib/createFile';
 import { processConsole } from './lib/processConsole';
 import { normalizePath } from './lib/utils';
 import makeCode from './makeCode';
+import { routes } from './routers';
 import { studio } from './studio';
 import { routerGenerator_ConfigProps } from './types';
 const expressApp = express()
@@ -28,7 +29,6 @@ const routerGenerator = async (lang: 'ts' | 'js', config: routerGenerator_Config
 
   return ({ fileList, _routerFileNameAndPath: _routerFileNameAndPath })
 }
-
 
 export class rg {
   private config: { startDir: string; };
@@ -88,4 +88,7 @@ export class rg {
 }
 
 
-
+export * from './routers';
+export default Object.assign(rg, {
+  routes: routes
+});
