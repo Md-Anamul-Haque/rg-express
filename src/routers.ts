@@ -5,12 +5,18 @@ import { createRoutePath, filterAndLowercaseHttpMethods } from "./lib/utils";
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
 export type routesProps = (string | { baseDir: string; });
 export const routes = (config: routesProps) => {
+    const fileExtension = new Error().stack?.split("\n")[2].match(/\/([^\/]+)$/)?.[1]?.split('.').pop()?.split(':')?.[0];
+    console.log({ fileExtension })
+    if (!(fileExtension == 'ts' || fileExtension == 'js')) {
+        throw new Error('file extension must be .ts or .js');
+    }
     const plog = new processConsole();
     plog.start('routes processing...');
     const startDir = `${typeof config == 'string' ? config : config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
     const router = Router();
-    const lang = '(ts|js)';
+    const lang = fileExtension;
     const fileList: string[] = readFiles(startDir, lang);
+
     if (fileList && fileList.length) {
         fileList.forEach(filename => {
             writeToFileSyncStartupCode(filename);

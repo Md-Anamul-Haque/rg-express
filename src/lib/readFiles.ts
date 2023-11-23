@@ -5,7 +5,7 @@ import * as path from 'path';
 
 
 
-export function readFiles(directoryPath: string, lang: 'ts' | 'js' | '(ts|js)'): string[] {
+export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
     const files: string[] = fs.readdirSync(directoryPath);
     const fileList: string[] = [];
 
@@ -18,11 +18,12 @@ export function readFiles(directoryPath: string, lang: 'ts' | 'js' | '(ts|js)'):
             fileList.push(...subFiles);
         } else {
             const fname = filePath.split('/').at(-1) || '';
-            if (lang == '(ts|js)') {
-                if (/^route\.(ts|js)$/.test(fname)) {
-                    fileList.push(filePath);
-                }
-            } else if (lang == 'ts') {
+            // if (lang == '(ts|js)') {
+            //     if (/^route\.(ts|js)$/.test(fname)) {
+            //         fileList.push(filePath);
+            //     }
+            // } else
+            if (lang == 'ts') {
                 if (/^route\.ts$/.test(fname)) {
                     fileList.push(filePath);
                 }
@@ -36,11 +37,12 @@ export function readFiles(directoryPath: string, lang: 'ts' | 'js' | '(ts|js)'):
     let endFileList: string[] = []
     fileList.forEach(file => {
         file = file.replace(/\\/g, '/')
-        if (lang == '(ts|js)') {
-            if (/route\.(ts|js)$/.test(file)) {
-                endFileList.push(file)
-            }
-        } else if (lang == 'ts') {
+        // if (lang == '(ts|js)') {
+        //     if (/route\.(ts|js)$/.test(file)) {
+        //         endFileList.push(file)
+        //     }
+        // } else 
+        if (lang == 'ts') {
             if (/route\.ts$/.test(file)) {
                 endFileList.push(file)
             }
