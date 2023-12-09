@@ -1,5 +1,20 @@
 import * as fs from 'fs';
-export function writeToFileSyncStartupCode(filename: string) {
+export function writeToFileSyncStartupCode(startDir:string,filename: string) {
+    const filePath = filename;
+const ignorePath =startDir;
+let FunctionName_for_get='getRequest';
+// Check if filePath starts with ignorePath and ends with a directory separator
+if (filePath.startsWith(ignorePath) && filePath[ignorePath.length] === '/') {
+    const remainingPath = filePath.substring(ignorePath.length + 1);
+    
+    // Find the index of the second-to-last directory separator
+    const lastIndex = remainingPath.lastIndexOf('/');
+    
+    if (lastIndex !== -1) {
+        FunctionName_for_get = remainingPath.substring(0, lastIndex).replace(/^\w/, (match) => match.toUpperCase())||'getRequest';
+    }
+}
+// ---------------------
     const startupTsContent = `
 import { type Request, type Response } from 'express'
 
@@ -7,14 +22,14 @@ const getRequest = async (req: Request, res: Response) => {
   res.send('hello')
 }
 
-export const GET = getRequest
+export const GET = ${FunctionName_for_get}
 `;
     const startupJsContent = `const getRequest = async (req, res) => {
     res.send('hello');
   };
   
   module.exports = {
-    GET: getRequest,
+    GET: ${FunctionName_for_get},
   };`
     try {
         // Read existing content from the file, if the file exists
