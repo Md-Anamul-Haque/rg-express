@@ -1,10 +1,3 @@
-export function createValidVariableName(name: string): string {
-    // Suggest a valid variable name by removing invalid characters
-    // For example, if the name contains spaces, special characters, etc.
-    // Replace invalid characters with underscores (_) or remove them
-    const validName = name.replace(/[^a-zA-Z0-9_$]/g, '_');
-    return validName;
-}
 
 
 export function createRoutePath({ name, startDir }: { name: string, startDir: string }, lang: 'ts' | 'js'): string {
@@ -33,27 +26,27 @@ export function filterAndLowercaseHttpMethods(inputArray: string[]): HttpMethod[
         .map(method => method.toLowerCase()) as HttpMethod[];
 }
 
-export function normalizePath(url: string): string {
-    // Remove leading and trailing slashes
+// export function normalizePath(url: string): string {
+//     // Remove leading and trailing slashes
 
-    // /.../..../ --> .../....
-    url = url.replace(/^\/|\/$/g, '');
-    // ...\..\\.. --> .../..//..
-    url = url.replace(/\\/g, '/');
+//     // /.../..../ --> .../....
+//     url = url.replace(/^\/|\/$/g, '');
+//     // ...\..\\.. --> .../..//..
+//     url = url.replace(/\\/g, '/');
 
-    // Replace consecutive slashes with a single slash
+//     // Replace consecutive slashes with a single slash
 
-    // ...//.../ --> .../.../
-    url = url.replace(/\/+/g, '/');
-    // Check if the path starts with './' or '/'
-    if (url.startsWith('./')) {
-        return url.substring(2);
-    } else if (url.startsWith('/')) {
-        return url.substring(1);
-    } else {
-        return url;
-    }
-}
+//     // ...//.../ --> .../.../
+//     url = url.replace(/\/+/g, '/');
+//     // Check if the path starts with './' or '/'
+//     if (url.startsWith('./')) {
+//         return url.substring(2);
+//     } else if (url.startsWith('/')) {
+//         return url.substring(1);
+//     } else {
+//         return url;
+//     }
+// }
 
 
 export function getFileExtension(): void {
