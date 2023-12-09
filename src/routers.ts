@@ -5,7 +5,10 @@ import { createRoutePath, filterAndLowercaseHttpMethods } from "./lib/utils";
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
 export type routesProps = (string | { baseDir: string; });
 export const routes = (config: routesProps) => {
-    const fileExtension = new Error().stack?.split("\n")[2].match(/\/([^\/]+)$/)?.[1]?.split('.').pop()?.split(':')?.[0];
+    // const fileExtension = new Error().stack?.split("\n")[2].match(/\/([^\/]+)$/)?.[1]?.split('.').pop()?.split(':')?.[0];
+   // resolve missing
+    const fileExtension = new Error().stack?.split("\n")[2].match(/\((.*?\.([a-zA-Z]+)):\d+:\d+\)/)?.[2];
+
     console.log({ fileExtension })
     if (!(fileExtension == 'ts' || fileExtension == 'js')) {
         throw new Error('file extension must be .ts or .js');
