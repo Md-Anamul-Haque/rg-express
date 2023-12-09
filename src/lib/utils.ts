@@ -5,14 +5,20 @@ export function createValidVariableName(name: string): string {
     const validName = name.replace(/[^a-zA-Z0-9_$]/g, '_');
     return validName;
 }
+
+
 export function createRoutePath({ name, startDir }: { name: string, startDir: string }, lang: 'ts' | 'js'): string {
     let route = name;
     const regexpRouteFileName = new RegExp(`/?route.${lang}$`)
     const RegexpStartDir = new RegExp(`^/?${startDir}/?`)
 
     route = route.replace(startDir, '').replace(RegexpStartDir, '').replace(regexpRouteFileName, '') || '/';
+    // [slug] --> slug
     route = route.replace(/\[(\w+)\]/g, ':$1');
+    // [...slug] --> *
     route = route.replace(/\[\.\.\.(\w+)\]/g, '*');
+    // ...\..\\.. --> .../..//..
+    route = route.replace(/\\/g, '/');
     return route
 }
 export const httpMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE', 'COPY', 'LOCK', 'MOVE', 'UNLOCK', 'PROPFIND', 'PROPPATCH', 'MKCOL', 'CHECKOUT', 'SEARCH']
@@ -29,9 +35,15 @@ export function filterAndLowercaseHttpMethods(inputArray: string[]): HttpMethod[
 
 export function normalizePath(url: string): string {
     // Remove leading and trailing slashes
+
+    // /.../..../ --> .../....
     url = url.replace(/^\/|\/$/g, '');
+    // ...\..\\.. --> .../..//..
+    url = url.replace(/\\/g, '/');
 
     // Replace consecutive slashes with a single slash
+
+    // ...//.../ --> .../.../
     url = url.replace(/\/+/g, '/');
     // Check if the path starts with './' or '/'
     if (url.startsWith('./')) {

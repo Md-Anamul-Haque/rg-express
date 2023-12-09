@@ -6,7 +6,8 @@ import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
 export type routesProps = (string | { baseDir: string; });
 export const routes = (config: routesProps) => {
     // const fileExtension = new Error().stack?.split("\n")[2].match(/\/([^\/]+)$/)?.[1]?.split('.').pop()?.split(':')?.[0];
-   // resolve missing
+
+   // resolve missing to fine js
     const fileExtension = new Error().stack?.split("\n")[2].match(/\((.*?\.([a-zA-Z]+)):\d+:\d+\)/)?.[2];
 
     console.log({ fileExtension })
@@ -15,11 +16,12 @@ export const routes = (config: routesProps) => {
     }
     const plog = new processConsole();
     plog.start('routes processing...');
-    const startDir = `${typeof config == 'string' ? config : config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
+    let startDir = `${typeof config == 'string' ? config : config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
+    // ...\..\\.. --> .../..//..
+    startDir = startDir.replace(/\\/g, '/');
     const router = Router();
     const lang = fileExtension;
     const fileList: string[] = readFiles(startDir, lang);
-
     if (fileList && fileList.length) {
         fileList.forEach(filename => {
             writeToFileSyncStartupCode(filename);
