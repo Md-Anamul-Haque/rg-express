@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 export function writeToFileSyncStartupCode(startDir:string,filename: string) {
+// -----------start of make function name----------
     const filePath = filename;
 const ignorePath =startDir;
 let FunctionName_for_get='getRequest';
@@ -14,7 +15,7 @@ if (filePath.startsWith(ignorePath) && filePath[ignorePath.length] === '/') {
         FunctionName_for_get = remainingPath.substring(0, lastIndex).replace(/^\w/, (match) => match.toUpperCase())||'getRequest';
     }
 }
-// ---------------------
+// -----------end of make function name----------
     const startupTsContent = `
 import { type Request, type Response } from 'express'
 
