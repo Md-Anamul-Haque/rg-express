@@ -3,6 +3,7 @@ export function writeToFileSyncStartupCode(startDir:string,filename: string) {
 // -----------start of make function name----------
     const filePath = filename;
 const ignorePath =startDir;
+let sendMessage='hello';
 let FunctionName_for_get='haneleGetRequest';
 // Check if filePath starts with ignorePath and ends with a directory separator
 if (filePath.startsWith(ignorePath) && filePath[ignorePath.length] === '/') {
@@ -12,7 +13,9 @@ if (filePath.startsWith(ignorePath) && filePath[ignorePath.length] === '/') {
     const lastIndex = remainingPath.lastIndexOf('/');
     
     if (lastIndex !== -1) {
-        FunctionName_for_get ='haneleGet'+ remainingPath.substring(0, lastIndex).replace(/^\w/, (match) => match.toUpperCase())||'haneleGetRequest';
+        const ffg_name=remainingPath.substring(0, lastIndex).replace(/^\w/, (match) => match.toUpperCase());
+        FunctionName_for_get ='haneleGet'+(ffg_name||'haneleGetRequest');
+        sendMessage=ffg_name||sendMessage;
     }
 }
 // -----------end of make function name----------
@@ -20,13 +23,13 @@ if (filePath.startsWith(ignorePath) && filePath[ignorePath.length] === '/') {
 import { type Request, type Response } from 'express'
 
 const ${FunctionName_for_get} = async (req: Request, res: Response) => {
-  res.send('hello')
+  res.send('${sendMessage}')
 }
 
 export const GET = ${FunctionName_for_get}
 `;
     const startupJsContent = `const ${FunctionName_for_get} = async (req, res) => {
-    res.send('hello');
+    res.send('${sendMessage}');
   };
   
   module.exports = {

@@ -1,10 +1,12 @@
 # rg-express
 
-## (route generator in express) user guide
+## (route generator in express) user guide 
+
+> express routers generator
 
 > এই লাইব্রেরিটি next.js এবং express থেকে অনুপ্রেরণা নিয়ে তৈরি করা হয়েছে ৷
 
-> This library is inspired by next.js and express.
+> This library is inspired by next.js and express. 
 
 ```bash
 npm i rg-express
