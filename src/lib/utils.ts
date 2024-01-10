@@ -1,6 +1,6 @@
 
 
-export function createRoutePath({ name, startDir }: { name: string, startDir: string }, lang: 'ts' | 'js'): string {
+export function createRoutePath({ name, startDir }: { name: string, startDir: string }, lang: 'ts' | 'js'): [string, (string | null)] {
     let route = name;
     const regexpRouteFileName = new RegExp(`/?route.${lang}$`)
     const RegexpStartDir = new RegExp(`^/?${startDir}/?`)
@@ -8,11 +8,22 @@ export function createRoutePath({ name, startDir }: { name: string, startDir: st
     route = route.replace(startDir, '').replace(RegexpStartDir, '').replace(regexpRouteFileName, '') || '/';
     // [slug] --> slug
     route = route.replace(/\[(\w+)\]/g, ':$1');
-    // [...slug] --> *
+
+
+    // [...slug] --> * start hear
+    const match = route.match(/\[\.\.\.(\w+)\]/);
+    let paramsName: (string | null) = null;
+    if (match) {
+        paramsName = match[1]
+    }
     route = route.replace(/\[\.\.\.(\w+)\]/g, '*');
+    // [...slug] --> * end hear
+
+
     // ...\..\\.. --> .../..//..
     route = route.replace(/\\/g, '/');
-    return route
+
+    return [route, paramsName]
 }
 export const httpMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE', 'COPY', 'LOCK', 'MOVE', 'UNLOCK', 'PROPFIND', 'PROPPATCH', 'MKCOL', 'CHECKOUT', 'SEARCH']
 

@@ -1,24 +1,36 @@
 import * as fs from 'fs';
-export function writeToFileSyncStartupCode(startDir:string,filename: string) {
-// -----------start of make function name----------
-    const filePath = filename;
-const ignorePath =startDir;
-let sendMessage='hello';
-let FunctionName_for_get='haneleGetRequest';
-// Check if filePath starts with ignorePath and ends with a directory separator
-if (filePath.startsWith(ignorePath) && filePath[ignorePath.length] === '/') {
-    const remainingPath = filePath.substring(ignorePath.length + 1);
-    
-    // Find the index of the second-to-last directory separator
-    const lastIndex = remainingPath.lastIndexOf('/');
-    
-    if (lastIndex !== -1) {
-        const ffg_name=remainingPath.substring(0, lastIndex).replace(/^\w/, (match) => match.toUpperCase());
-        FunctionName_for_get ='haneleGet'+(ffg_name||'haneleGetRequest');
-        sendMessage=ffg_name||sendMessage;
-    }
+function getValidFunctionName(input: string): string {
+    // Replace invalid characters with underscores
+    const cleanName = input.replace(/[\[\]\/]+/g, '_');
+
+    // Replace underscores, if there are multiple underscores together, with a single underscore
+    const singleUnderscoreName = cleanName.replace(/_+/g, '_');
+
+    // Remove leading and trailing underscores
+    const validName = singleUnderscoreName.replace(/^_+|_+$/g, '').replace(/\.\.\.(\w+)/g, '').replace(/^\_/, '').replace(/$\_/, '');
+
+    return validName;
 }
-// -----------end of make function name----------
+export function writeToFileSyncStartupCode(startDir: string, filename: string) {
+    // -----------start of make function name----------
+    const filePath = filename;
+    const ignorePath = startDir;
+    let sendMessage = 'hello';
+    let FunctionName_for_get = 'haneleGetRequest';
+    // Check if filePath starts with ignorePath and ends with a directory separator
+    if (filePath.startsWith(ignorePath) && filePath[ignorePath.length] === '/') {
+        const remainingPath = filePath.substring(ignorePath.length + 1);
+
+        // Find the index of the second-to-last directory separator
+        const lastIndex = remainingPath.lastIndexOf('/');
+
+        if (lastIndex !== -1) {
+            const ffg_name = remainingPath.substring(0, lastIndex).replace(/^\w/, (match) => match.toUpperCase());
+            FunctionName_for_get = getValidFunctionName('haneleGet' + (ffg_name || 'haneleGetRequest'));
+            sendMessage = ffg_name || sendMessage;
+        }
+    }
+    // -----------end of make function name----------
     const startupTsContent = `
 import { type Request, type Response } from 'express'
 
