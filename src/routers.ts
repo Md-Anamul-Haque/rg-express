@@ -4,7 +4,7 @@ import { processConsole } from './lib/processConsole';
 import { readFiles } from "./lib/readFiles";
 import { createRoutePath, filterAndLowercaseHttpMethods } from "./lib/utils";
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
-export type routesProps = (string | { baseDir: string; });
+export type routesProps = (string | { baseDir: string;autoSetupWith_js?:boolean });
 
 export const routes = (config: routesProps) => {
     // const fileExtension = new Error().stack?.split("\n")[2].match(/\/([^\/]+)$/)?.[1]?.split('.').pop()?.split(':')?.[0];
@@ -19,6 +19,8 @@ export const routes = (config: routesProps) => {
     const plog = new processConsole();
     plog.start('routes processing...');
     let startDir = `${typeof config == 'string' ? config : config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
+    let autoSetupWith_js:boolean = typeof config == 'string' ? false : config?.autoSetupWith_js||false;
+
     // ...\..\\.. --> .../..//..
     startDir = startDir.replace(/\\/g, '/');
 
@@ -27,7 +29,9 @@ export const routes = (config: routesProps) => {
     const fileList: string[] = readFiles(startDir, lang);
     if (fileList && fileList.length) {
         fileList.forEach(filename => {
-            writeToFileSyncStartupCode(startDir, filename);
+            // ---------------
+           if(autoSetupWith_js||fileExtension=='ts'){writeToFileSyncStartupCode(startDir, filename);}
+            // ------------------
             let [apiUrl, nameOfParamsMatch] = createRoutePath({ name: filename, startDir: startDir }, lang)
             const exportFunctions = require(filename);
             const filteredHttpMethods = filterAndLowercaseHttpMethods(Object.keys(exportFunctions));// 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace' | 'copy' | 'lock' | 'move' | 'unlock' | 'propfind' | 'proppatch' | 'mkcol' | 'checkout' | 'search'
