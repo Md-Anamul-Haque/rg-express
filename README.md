@@ -105,7 +105,7 @@ The routes in this project adhere to specific patterns to handle various scenari
 
 This route corresponds to paths such as `/abc/something/`. The `[slug]` notation denotes a dynamic parameter, representing a single value (e.g., `/abc/example/`). In your code, access this parameter using `req.params.slug`.
 
-### `routes/abc/[..slugs]/`
+### `routes/abc/[...slugs]/`
 
 This route is designed for paths with multiple dynamic parameters, where the `[..slugs]` notation signifies a variable number of values (e.g., `/abc/first/second/third/`). In your code, these values are accessible as an array: `req.params.slugs`.
 

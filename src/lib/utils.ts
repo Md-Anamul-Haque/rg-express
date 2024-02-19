@@ -10,14 +10,14 @@ export function createRoutePath({ name, startDir }: { name: string, startDir: st
     route = route.replace(/\[(\w+)\]/g, ':$1');
 
 
-    // [...slug] --> * start hear
+    // [...slugs] --> * start hear 
     const match = route.match(/\[\.\.\.(\w+)\]/);
     let paramsName: (string | null) = null;
     if (match) {
         paramsName = match[1]
     }
     route = route.replace(/\[\.\.\.(\w+)\]/g, '*');
-    // [...slug] --> * end hear
+    // [...slugs] --> * end hear
 
 
     // ...\..\\.. --> .../..//..
