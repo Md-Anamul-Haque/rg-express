@@ -18,39 +18,32 @@ yarn add rg-express
 ### Basic Setup
 #### Without src Directory
 ```bash
-project-directory
 ├── package.json
 ├── routes
-│   ├── hello
-│   │   ├── route.js / ts -> export GET, POST...
-│   │   └── ...
-│   ├── product
-│   │   ├── route.js / ts
-│   │   └── [id]
-│   │       └──  route.js / ts
-│   ├── <any-api-name>
-│   │   ├── route.js / ts
-│   │   └── ...
-│   └── ..
-├── app.js / ts
+├── app.ts or app.js
 └── ...
 ```
 
-#### With src Directory
+#### or
 ```bash
-project-directory
 ├── package.json
 ├── src
 │   ├── routes
-│   │     ├─ hello
-│   │     │   ├── route.ts/js
-│   │     │   └── ...
-│   │     ├── product
-│   │     │    ├── route.ts/js
-│   │     │    └── ...
-│   │     └── <any-api-name>
-│   │          └── route.ts/js
-│   ├── app.ts/js
+│   ├── app.ts or app.js
+```
+
+#### in routes
+```bash
+ routes
+   ├── product
+   │      ├──route.ts ['/product']
+   │      └──[slug]/route.ts ['/product/:slug']
+   │                    └── (req.params.slug) // string
+   │── hello
+   │      └──[...slugs]
+   │             └── route.ts ['/hello/:*']
+   │                   └── (req.params.slugs) // string[]
+   └── ...
 ```
 
 ## Usage
@@ -69,31 +62,36 @@ app.listen(8001, () => {
 
 ```
 
-#### With src Directory
-
-```js
-// src/app.js
-const express = require('express');
-const rg = require('rg-express');
-const app = express();
-app.use(rg.routes(__dirname + '/src'));
-
-app.listen(8001, () => {
-  console.log('server is running at http://localhost:8001');
-});
-
-```
-
 
 ## Route Configuration
 
+```typescript
+// route.ts
+export const GET =(req:Request,res:Response)=>{
+  res.send('hello rg-express ')
+}
+// --------------- Middlewares ----------------
+const handlePost=(req:Request,res:Response)=>{
+//  ...
+}
+// checkAuth is a normal expressjs Middleware function
+export const POST=[checkAuth,handlePost]
+```
+### or, <i>with js</i>
+
 ```javascript
 // route.js
-module.exports.GET = getUser; // No middlewares for GET requests
-module.exports.POST = createUser; // No middlewares for POST requests
-module.exports.PUT = updateUser; // No middlewares for PUT requests
-module.exports.DELETE = deleteUser; // No middlewares for DELETE requests
+module.exports.GET = (req,res)=>{
+  res.send('hello rg-express ')
+}
+// --------------- Middlewares ----------------
+const handlePost=(req:Request,res:Response)=>{
+//  ...
+}
+// checkAuth is a normal expressjs Middleware function
+module.exports.POST=[checkAuth,handlePost]
 ```
+
 
 
 ### `routes/abc/route.ts`
@@ -107,29 +105,12 @@ This route corresponds to paths such as `/abc/something/`. The `[slug]` notation
 
 ### `routes/abc/[...slugs]/`
 
-This route is designed for paths with multiple dynamic parameters, where the `[..slugs]` notation signifies a variable number of values (e.g., `/abc/first/second/third/`). In your code, these values are accessible as an array: `req.params.slugs`.
+This route is designed for paths with multiple dynamic parameters, where the `[...slugs]` notation signifies a variable number of values (e.g., `/abc/first/second/third/`). In your code, these values are accessible as an array: `req.params.slugs`.
 
 ## Middlewares
 
-You can directly assign functions for different HTTP methods without using any middlewares:
+You can directly assign functions for different HTTP methods with using any middlewares:
 
-```javascript
-// route.js
-module.exports.GET = getUser; // No middlewares for GET requests
-module.exports.POST = createUser; // No middlewares for POST requests
-module.exports.PUT = updateUser; // No middlewares for PUT requests
-module.exports.DELETE = deleteUser; // No middlewares for DELETE requests
-```
-## or
-
-```typescript
-// route.ts
-export const GET = getUser; // No middlewares for GET requests
-export const POST = createUser; // No middlewares for POST requests
-export const PUT = updateUser; // No middlewares for PUT requests
-export const DELETE = deleteUser; // No middlewares for DELETE requests
-
-```
 
 ## Middlewares
 
