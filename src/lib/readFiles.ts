@@ -2,14 +2,16 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-
-// function getAnySegmentLength(path:string) {
-//     const pattern = /\[\.\.\.\w+\]/g; // Regular expression pattern to match '[...<any>]'
-//     const matches = path.match(pattern);
-//     return matches ? matches.length : 0;
-// }
-
-
+function getSpradesLength(path:string) {
+    const pattern = /\[\.\.\.\w+\]/g; // Regular expression pattern to match '[...<any>]'
+    const matches = path.match(pattern);
+    return matches ? matches.length : 0;
+}
+function getSlugsLength(path:string) {
+    const pattern = /\[\w+\]/g; // Regular expression pattern to match '[<any>]'
+    const matches = path.match(pattern);
+    return matches ? matches.length : 0;
+}
 function customSortSprades(a:string, b:string) {
     if (a === b) {
         return 0;
@@ -22,8 +24,14 @@ function customSortSprades(a:string, b:string) {
         return -1;
     } else if (indexOfA<indexOfB) {
         return 1;
-    }else if(indexOfA ==indexOfB){
-        return(a.length > b.length?-1:1)
+    }else if(indexOfA == indexOfB){
+        const slengthA=getSpradesLength(a)
+        const slengthB=getSpradesLength(b)
+        if (slengthA==slengthB) {
+            return(a.length > b.length?-1:1)
+        } else {
+            return(slengthA > slengthB?-1:1)
+        }
     }
   
     return a.localeCompare(b);
@@ -35,19 +43,27 @@ function customSort(a: string, b: string): number {
 
     const hasBracketA = a.includes('[');
     const hasBracketB = b.includes('[');
-    const hasEllipsisA = a.includes('[...');
-    const hasEllipsisB = b.includes('[...');
+    // const hasEllipsisA = a.includes('[...');
+    // const hasEllipsisB = b.includes('[...');
 
-    if (hasEllipsisA && !hasEllipsisB) {
-        return 1;
-    } else if (!hasEllipsisA && hasEllipsisB) {
-        return -1;
-    }
+    // if (hasEllipsisA && !hasEllipsisB) {
+    //     return 1;
+    // } else if (!hasEllipsisA && hasEllipsisB) {
+    //     return -1;
+    // }
 
     if (hasBracketA && !hasBracketB) {
         return 1;
     } else if (!hasBracketA && hasBracketB) {
         return -1;
+    }else if(hasBracketA==hasBracketB){
+        const slugsA_is=getSlugsLength(a)
+        const slugsB_is=getSlugsLength(b)
+        if (slugsA_is==slugsB_is) {
+            return(a.length > b.length?-1:1)
+        } else {
+            return(slugsA_is > slugsB_is?-1:1)
+        }
     }
 
     return a.localeCompare(b);
@@ -61,7 +77,8 @@ const sortNowAsMyG=(fl:string[]):string[]=>{
 }
 
 export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
-    const files: string[] = fs.readdirSync(directoryPath);
+    try {
+        const files: string[] = fs.readdirSync(directoryPath);
     const fileList: string[] = [];
     // ...\..\\.. --> .../..//..
     directoryPath = directoryPath.replace(/\\/g, '/');
@@ -107,4 +124,8 @@ export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
         }
     });
     return sortNowAsMyG(endFileList);
+    } catch (error) {
+        console.error(error)
+        return([])
+    }
 }
