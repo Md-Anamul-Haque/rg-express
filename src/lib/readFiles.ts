@@ -3,6 +3,31 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+// function getAnySegmentLength(path:string) {
+//     const pattern = /\[\.\.\.\w+\]/g; // Regular expression pattern to match '[...<any>]'
+//     const matches = path.match(pattern);
+//     return matches ? matches.length : 0;
+// }
+
+
+function customSortSprades(a:string, b:string) {
+    if (a === b) {
+        return 0;
+    }
+  
+    const indexOfA = a.indexOf('[...');
+    const indexOfB = b.indexOf('[...');
+  
+    if (indexOfA>indexOfB) {
+        return -1;
+    } else if (indexOfA<indexOfB) {
+        return 1;
+    }else if(indexOfA ==indexOfB){
+        return(a.length > b.length?-1:1)
+    }
+  
+    return a.localeCompare(b);
+  }
 function customSort(a: string, b: string): number {
     if (a === b) {
         return 0;
@@ -28,20 +53,12 @@ function customSort(a: string, b: string): number {
     return a.localeCompare(b);
 }
 
-// const paths = [
-//     '/product/[product_id]',
-//     '/product/[...ids]',
-//     '/org',
-//     '/org/[id]',
-//     '/org/[...ids]',
-//     '/product',
-//     // ... add more paths as needed
-// ];
-
-// // const sortedPaths = paths.sort(customSort);
-
-// // console.log(sortedPaths);
-
+const sortNowAsMyG=(fl:string[]):string[]=>{
+    let fl1=fl.filter(l=>!l.includes('[...'))
+    let fl2=fl.filter(l=>l.includes('[...'))
+    const result=[...fl1.sort(customSort),...fl2.sort(customSortSprades)]
+    return(result)
+}
 
 export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
     const files: string[] = fs.readdirSync(directoryPath);
@@ -89,5 +106,5 @@ export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
             }
         }
     });
-    return endFileList.sort(customSort);
+    return sortNowAsMyG(endFileList);
 }
