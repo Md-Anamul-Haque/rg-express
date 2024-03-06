@@ -40,6 +40,14 @@ const ${FunctionName_for_get} = async (req: Request, res: Response) => {
 
 export const GET = ${FunctionName_for_get}
 `;
+const startupMjsContent = `
+
+const ${FunctionName_for_get} = async (req, res) => {
+  res.send('${sendMessage}')
+}
+
+export const GET = ${FunctionName_for_get}
+`;
     const startupJsContent = `const ${FunctionName_for_get} = async (req, res) => {
     res.send('${sendMessage}');
   };
@@ -57,10 +65,12 @@ export const GET = ${FunctionName_for_get}
         // Check if the file is empty or existing content is different from new content
         if (!existingContent) {
             // Write new content to the file
-            if (filename.split('.').at(-1) === 'ts') {
+            if (filename.split('.').at(-1) === 'ts'||filename.split('.').at(-1) === 'mts') {
                 fs.writeFileSync(filename, startupTsContent);
             } else if (filename.split('.').at(-1) === 'js') {
                 fs.writeFileSync(filename, startupJsContent);
+            }else if(filename.split('.').at(-1) === 'mjs'){
+                fs.writeFileSync(filename, startupMjsContent);
             }
             // 'New content written to the file.'
         } else {

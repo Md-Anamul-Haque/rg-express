@@ -76,7 +76,7 @@ const sortNowAsMyG=(fl:string[]):string[]=>{
     return(result)
 }
 
-export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
+export function readFiles(directoryPath: string, file_extension:string): string[] {
     try {
         const files: string[] = fs.readdirSync(directoryPath);
     const fileList: string[] = [];
@@ -92,32 +92,33 @@ export function readFiles(directoryPath: string, lang: 'ts' | 'js'): string[] {
         const stats: fs.Stats = fs.statSync(filePath);
         if (stats.isDirectory()) {
             // If it's a directory, recursively read files inside it
-            const subFiles: string[] = readFiles(filePath, lang);
+            const subFiles: string[] = readFiles(filePath, file_extension);
 
             fileList.push(...subFiles);
         } else {
             let fname = filePath.split('/').at(-1) || '';
             // ...\..\\.. --> .../..//..
             fname = fname.replace(/\\/g, '/');
-            if (lang == 'ts') {
-                if (/^route\.ts$/.test(fname)) {
+            const file_regex=new RegExp(`^route\.${file_extension}$`)
+            // if (lang == 'ts') {
+                if (file_regex.test(fname)) {
                     fileList.push(filePath);
                 }
-            } else if (lang == 'js') {
-                if (/^route\.js$/.test(fname)) {
-                    fileList.push(filePath);
-                }
-            }
+            // } else if (lang == 'js') {
+            //     if (/^route\.js$/.test(fname)) {
+            //         fileList.push(filePath);
+            //     }
+            // }
         }
     });
     let endFileList: string[] = []
     fileList.forEach(file => {
         file = file.replace(/\\/g, '/');
-        if (lang == 'ts') {
+        if (file_extension == 'ts') {
             if (/route\.ts$/.test(file)) {
                 endFileList.push(file)
             }
-        } else if (lang == 'js') {
+        } else if (file_extension == 'js') {
             if (/route\.js$/.test(file)) {
                 endFileList.push(file)
             }
