@@ -44,7 +44,7 @@
     "express",
     "filebaseRouting",
     "rg",
-    "api-studio"
+    "2x_time_first"
   ],
   "module": "dist/rg-express.esm.js",
   "size-limit": [
