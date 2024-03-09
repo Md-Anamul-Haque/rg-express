@@ -77,7 +77,7 @@ try {
 
         // Check for tsconfig.json file
         const tsConfigExists = fs.existsSync('tsconfig.json');
-        console.log(tsConfigExists)
+        // console.log({tsConfigExists})
         // Check for TypeScript dependencies
         return tsFilesExist || tsConfigExists;
     

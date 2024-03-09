@@ -1,30 +1,36 @@
 
 import { NextFunction, Request, Response, Router } from 'express';
-import { processConsole } from './lib/processConsole';
+import { ProcessConsole } from './lib/processConsole';
 import { readFiles } from "./lib/readFiles";
 import { createRoutePath, filterAndLowercaseHttpMethods, isTypeScriptProject } from "./lib/utils";
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
 export type routesProps = (string | { baseDir: string;autoSetupWith_js?:boolean });
+const consoleP = new ProcessConsole();
+const consoleP2 = new ProcessConsole();
 
 export const routes = (config: routesProps) => {
+    console.time('✓ Ready in ')
     // const fileExtension = new Error().stack?.split("\n")[2].match(/\/([^\/]+)$/)?.[1]?.split('.').pop()?.split(':')?.[0];
-    const isThisTsProject =isTypeScriptProject()
-    console.log({ ts:isThisTsProject })
+    const isThis_TS_project =isTypeScriptProject()
     // resolve missing to fine js
     const fileExtension = new Error().stack?.split("\n")[2].match(/\((.*?\.([a-zA-Z]+)):\d+:\d+\)/)?.[2];
 
-    console.log({ fileExtension })
-    if (!(fileExtension == 'ts' || fileExtension == 'js'|| fileExtension == 'mjs'|| fileExtension == 'mts')) {
-        throw new Error('file extension must be .ts or .js');
+    // if (!(fileExtension == 'ts' || fileExtension == 'js'|| fileExtension == 'mjs'|| fileExtension == 'mts')) {
+    //     throw new Error('file extension is not valid');
+    // }
+    if (!fileExtension) {
+        throw new Error('file extension is not valid');
     }
-    const plog = new processConsole();
-    plog.start('routes processing...');
+    consoleP2.complete(` ${isThis_TS_project?'TypeScript +':''} ${fileExtension}`)
+
     let startDir = `${typeof config == 'string' ? config : config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
     let autoSetupWith_js:boolean = typeof config == 'string' ? false : config?.autoSetupWith_js||false;
-    const isAutoSetup=autoSetupWith_js||(isThisTsProject?fileExtension.endsWith('ts'):true);
-    console.log({ isAutoSetup })
+    const isAutoSetup=autoSetupWith_js||(isThis_TS_project?fileExtension.endsWith('ts'):true);
+    isAutoSetup?consoleP2.complete(`✓ AutoSetup : ${isThis_TS_project?'TypeScript':fileExtension} [is] ${fileExtension}`):consoleP2.false(`AutoSetup : The project is built on '${isThis_TS_project?'TypeScript':fileExtension}', but the running file is '${fileExtension}'. Don't worry, this is perfectly fine.`);
     // ...\..\\.. --> .../..//..
     startDir = startDir.replace(/\\/g, '/');
+    
+    consoleP.start('Route processing');
 
     const router = Router();
     const lang = fileExtension;
@@ -50,7 +56,8 @@ export const routes = (config: routesProps) => {
             });
         });
     }
-    plog.complete('routes processing complete');
+    consoleP.complete('Route processing complete.');
+    console.timeEnd('✓ Ready in ')
     return router;
 };
 
