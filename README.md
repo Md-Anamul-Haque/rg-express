@@ -70,10 +70,12 @@ app.listen(8001, () => {
 export const GET =(req:Request,res:Response)=>{
   res.send('hello rg-express ')
 }
+
 // --------------- Middlewares ----------------
 const handlePost=(req:Request,res:Response)=>{
 //  ...
 }
+
 // checkAuth is a normal expressjs Middleware function
 export const POST=[checkAuth,handlePost]
 ```
@@ -84,10 +86,12 @@ export const POST=[checkAuth,handlePost]
 module.exports.GET = (req,res)=>{
   res.send('hello rg-express ')
 }
+
 // --------------- Middlewares ----------------
 const handlePost=(req:Request,res:Response)=>{
 //  ...
 }
+
 // checkAuth is a normal expressjs Middleware function
 module.exports.POST=[checkAuth,handlePost]
 ```
