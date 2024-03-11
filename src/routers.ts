@@ -21,12 +21,12 @@ export const routes = (config: routesProps) => {
     if (!fileExtension) {
         throw new Error('file extension is not valid');
     }
-    consoleP2.complete(` ${isThis_TS_project?'TypeScript +':''} ${fileExtension}`)
+    consoleP2.complete(`${isThis_TS_project?'TypeScript + ':''}${fileExtension}`)
 
     let startDir = `${typeof config == 'string' ? config : config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
     let autoSetupWith_js:boolean = typeof config == 'string' ? false : config?.autoSetupWith_js||false;
     const isAutoSetup=autoSetupWith_js||(isThis_TS_project?fileExtension.endsWith('ts'):true);
-    isAutoSetup?consoleP2.complete(`✓ AutoSetup : ${fileExtension}`):consoleP2.false(`AutoSetup : The project is built on '${isThis_TS_project?'TypeScript':fileExtension}', but the running file is '${fileExtension}'. Don't worry, this is perfectly fine.`);
+    isAutoSetup?consoleP2.complete(`AutoSetup.:.${fileExtension}`):consoleP2.false(`AutoSetup : The project is built on '${isThis_TS_project?'TypeScript':fileExtension}', but the running file is '${fileExtension}'. Don't worry, this is perfectly fine.`);
     // ...\..\\.. --> .../..//..
     startDir = startDir.replace(/\\/g, '/');
     
