@@ -4,7 +4,7 @@ import { ProcessConsole } from './lib/processConsole';
 import { readFiles } from "./lib/readFiles";
 import { createRoutePath, filterAndLowercaseHttpMethods, isTypeScriptProject } from "./lib/utils";
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
-export type routesProps = (string | { baseDir: string;autoSetupWith_js?:boolean });
+export type routesProps = (string | { baseDir: string;autoSetup?:boolean });
 const consoleP = new ProcessConsole();
 const consoleP2 = new ProcessConsole();
 
@@ -24,9 +24,11 @@ export const routes = (config: routesProps) => {
     consoleP2.complete(`${isThis_TS_project?'TypeScript + ':''}${fileExtension}`)
 
     let startDir = `${typeof config == 'string' ? config : config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
-    let autoSetupWith_js:boolean = typeof config == 'string' ? false : config?.autoSetupWith_js||false;
-    const isAutoSetup=autoSetupWith_js||(isThis_TS_project?fileExtension.endsWith('ts'):true);
-    isAutoSetup?consoleP2.complete(`AutoSetup.:.${fileExtension}`):consoleP2.false(`AutoSetup : The project is built on '${isThis_TS_project?'TypeScript':fileExtension}', but the running file is '${fileExtension}'. Don't worry, this is perfectly fine.`);
+    let autoSetup:boolean = typeof config == 'string' ? false : config?.autoSetup||false;
+    const isCanAutoSetup=(isThis_TS_project?fileExtension.endsWith('ts'):true);
+   if(autoSetup){
+       isCanAutoSetup?consoleP2.complete(`AutoSetup.:.${fileExtension}`):consoleP2.false(`AutoSetup : The project is built on '${isThis_TS_project?'TypeScript':fileExtension}', but the running file is '${fileExtension}'. Don't worry, this is perfectly fine.`);
+   } 
     // ...\..\\.. --> .../..//..
     startDir = startDir.replace(/\\/g, '/');
     
@@ -38,7 +40,7 @@ export const routes = (config: routesProps) => {
     if (fileList && fileList.length) {
         fileList.forEach(filename => {
             // ---------------
-           if(isAutoSetup){writeToFileSyncStartupCode(startDir, filename);}
+           if(autoSetup && isCanAutoSetup){writeToFileSyncStartupCode(startDir, filename);}
             // ------------------
             let [apiUrl, nameOfParamsMatch] = createRoutePath({ name: filename, startDir: startDir }, lang)
             const exportFunctions = require(filename);
