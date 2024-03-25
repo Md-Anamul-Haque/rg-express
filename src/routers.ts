@@ -1,10 +1,10 @@
 
-import { NextFunction, Request, Response, Router } from 'express';
+import express,{ NextFunction, Request, Response,Express } from 'express';
 import { ProcessConsole } from './lib/processConsole';
 import { readFiles } from "./lib/readFiles";
 import { createRoutePath, filterAndLowercaseHttpMethods, isTypeScriptProject } from "./lib/utils";
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
-export type routesProps = (string | { baseDir: string;autoSetup?:boolean });
+export type routesProps = (string | { baseDir: string;autoSetup?:boolean,app?:Express });
 const consoleP = new ProcessConsole();
 const consoleP2 = new ProcessConsole();
 
@@ -34,7 +34,7 @@ export const routes = (config: routesProps) => {
     
     consoleP.start('Route processing');
 
-    const router = Router();
+    const routerApp = (typeof config=='object'&& config.app)?config.app: express();
     const lang = fileExtension;
     const fileList: string[] = readFiles(startDir, lang);
     if (fileList && fileList.length) {
@@ -46,20 +46,26 @@ export const routes = (config: routesProps) => {
             const exportFunctions = require(filename);
             const filteredHttpMethods = filterAndLowercaseHttpMethods(Object.keys(exportFunctions));// 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace' | 'copy' | 'lock' | 'move' | 'unlock' | 'propfind' | 'proppatch' | 'mkcol' | 'checkout' | 'search'
             filteredHttpMethods.forEach(method => {
+
                 if (nameOfParamsMatch && typeof nameOfParamsMatch == 'string') {
-                    router[method](apiUrl, (req: Request, _res: Response, next: NextFunction) => {
+                    routerApp[method](apiUrl, (req: Request, _res: Response, next: NextFunction) => {
                         // @ts-ignore
                         req.params[nameOfParamsMatch] = req?.params?.[0]?.split('/');
                         next()
                     }, exportFunctions[method.toUpperCase()])
                 } else {
-                    router[method](apiUrl, exportFunctions[method.toUpperCase()])
+                    routerApp[method](apiUrl, exportFunctions[method.toUpperCase()])
                 }
+
             });
         });
     }
     consoleP.complete('Route processing complete.');
     console.timeEnd('✓ Ready in ')
-    return router;
+    if(!(typeof config=='object'&& config.app)){
+        return routerApp;
+    }else{
+        return ;
+    }
 };
 
