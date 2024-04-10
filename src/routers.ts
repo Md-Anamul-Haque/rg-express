@@ -1,17 +1,21 @@
 
-import express,{ NextFunction, Request, Response,Express } from 'express';
+import express, { NextFunction, Request, Response, Express } from 'express';
 import { ProcessConsole } from './lib/processConsole';
 import { readFiles } from "./lib/readFiles";
 import { createRoutePath, filterAndLowercaseHttpMethods, isTypeScriptProject } from "./lib/utils";
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
-export type routesProps = (string | { baseDir: string;autoSetup?:boolean,app?:Express });
+export type routesProps = (string | { baseDir: string; autoSetup?: boolean, app?: Express });
 const consoleP = new ProcessConsole();
 const consoleP2 = new ProcessConsole();
 
 export const routes = (config: routesProps) => {
+    config = typeof config == 'string' ? {
+        baseDir: config,
+        autoSetup: false,
+    } : config
     console.time('✓ Ready in ')
     // const fileExtension = new Error().stack?.split("\n")[2].match(/\/([^\/]+)$/)?.[1]?.split('.').pop()?.split(':')?.[0];
-    const isThis_TS_project =isTypeScriptProject()
+    const isThis_TS_project = isTypeScriptProject()
     // resolve missing to fine js
     const fileExtension = new Error().stack?.split("\n")[2].match(/\((.*?\.([a-zA-Z]+)):\d+:\d+\)/)?.[2];
 
@@ -21,26 +25,27 @@ export const routes = (config: routesProps) => {
     if (!fileExtension) {
         throw new Error('file extension is not valid');
     }
-    consoleP2.complete(`${isThis_TS_project?'TypeScript + ':''}${fileExtension}`)
-
-    let startDir = `${typeof config == 'string' ? config : config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
-    let autoSetup:boolean = typeof config == 'string' ? false : config?.autoSetup||false;
-    const isCanAutoSetup=(isThis_TS_project?fileExtension.endsWith('ts'):true);
-   if(autoSetup){
-       isCanAutoSetup?consoleP2.complete(`AutoSetup.:.${fileExtension}`):consoleP2.false(`AutoSetup : The project is built on '${isThis_TS_project?'TypeScript':fileExtension}', but the running file is '${fileExtension}'. Don't worry, this is perfectly fine.`);
-   } 
-    // ...\..\\.. --> .../..//..
+    consoleP2.complete(`${isThis_TS_project ? 'TypeScript' : fileExtension}`)
+    let startDir = `${config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
     startDir = startDir.replace(/\\/g, '/');
-    
+
+    // let autoSetup: boolean = typeof config == 'string' ? false : config?.autoSetup || false;
+    const isCanAutoSetup = (isThis_TS_project ? fileExtension.endsWith('ts') : true);
+    const isAutoSetup = isCanAutoSetup && config.autoSetup
+    if (config?.autoSetup) {
+        isAutoSetup ? consoleP2.complete(`AutoSetup with ${fileExtension}`) : consoleP2.false(`AutoSetup : The project is built on '${isThis_TS_project ? 'TypeScript' : fileExtension}', but the running file is '${fileExtension}'. Don't worry, this is perfectly fine.`);
+    }
+    // ...\..\\.. --> .../..//..
+
     consoleP.start('Route processing');
 
-    const routerApp = (typeof config=='object'&& config.app)?config.app: express();
+    const routerApp = config.app ? config.app : express();
     const lang = fileExtension;
     const fileList: string[] = readFiles(startDir, lang);
     if (fileList && fileList.length) {
         fileList.forEach(filename => {
             // ---------------
-           if(autoSetup && isCanAutoSetup){writeToFileSyncStartupCode(startDir, filename);}
+            if (isAutoSetup) { writeToFileSyncStartupCode(startDir, filename); }
             // ------------------
             let [apiUrl, nameOfParamsMatch] = createRoutePath({ name: filename, startDir: startDir }, lang)
             const exportFunctions = require(filename);
@@ -62,10 +67,10 @@ export const routes = (config: routesProps) => {
     }
     consoleP.complete('Route processing complete.');
     console.timeEnd('✓ Ready in ')
-    if(!(typeof config=='object'&& config.app)){
+    if (!(typeof config == 'object' && config.app)) {
         return routerApp;
-    }else{
-        return ;
+    } else {
+        return;
     }
 };
 
