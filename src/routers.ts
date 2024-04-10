@@ -27,6 +27,7 @@ export const routes = (config: routesProps) => {
     }
     consoleP2.complete(`${isThis_TS_project ? 'TypeScript' : fileExtension}`)
     let startDir = `${config?.baseDir}/routes`//normalizePath(config?.startDir || 'src');
+    // ...\..\\.. --> .../..//..
     startDir = startDir.replace(/\\/g, '/');
 
     // let autoSetup: boolean = typeof config == 'string' ? false : config?.autoSetup || false;
@@ -35,7 +36,6 @@ export const routes = (config: routesProps) => {
     if (config?.autoSetup) {
         isAutoSetup ? consoleP2.complete(`AutoSetup with ${fileExtension}`) : consoleP2.false(`AutoSetup : The project is built on '${isThis_TS_project ? 'TypeScript' : fileExtension}', but the running file is '${fileExtension}'. Don't worry, this is perfectly fine.`);
     }
-    // ...\..\\.. --> .../..//..
 
     consoleP.start('Route processing');
 
