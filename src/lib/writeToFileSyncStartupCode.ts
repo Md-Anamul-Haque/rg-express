@@ -25,7 +25,7 @@ export function writeToFileSyncStartupCode(startDir: string, filename: string) {
         const lastIndex = remainingPath.lastIndexOf('/');
 
         if (lastIndex !== -1) {
-            const ffg_name = remainingPath.substring(0, lastIndex).replace(/-([a-z])/g, (_match, group) => group.toUpperCase());
+            const ffg_name = remainingPath.substring(0, lastIndex).replace(/^\w/, (match) => match.toUpperCase()).replace(/-([a-z])/g, (_match, group) => group.toUpperCase());
             // const ffg_name = remainingPath.substring(0, lastIndex).replace(/^\w/, (match) => match.toUpperCase());
             FunctionName_for_get = getValidFunctionName('haneleGet' + (ffg_name || 'haneleGetRequest'));
             sendMessage = ffg_name || sendMessage;
@@ -35,12 +35,12 @@ export function writeToFileSyncStartupCode(startDir: string, filename: string) {
     const startupTsContent = `
 import { type Request, type Response } from 'express'
 
-const ${FunctionName_for_get} = async (req: Request, res: Response) => {
+export const GET = async (req: Request, res: Response) => {
   res.send('${sendMessage}')
 }
-
-export const GET = ${FunctionName_for_get}
 `;
+
+
     const startupMjsContent = `
 
 const ${FunctionName_for_get} = async (req, res) => {
