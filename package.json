@@ -2,7 +2,7 @@
   "workspaces": [
     "packages/*"
   ],
-  "version": "0.9.84",
+  "version": "0.9.86",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
