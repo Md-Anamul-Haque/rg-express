@@ -1,5 +1,5 @@
 
-import express, { NextFunction, Request, Response, Express } from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import { ProcessConsole } from './lib/processConsole';
 import { readFiles } from "./lib/readFiles";
 import { createRoutePath, filterAndLowercaseHttpMethods, isTypeScriptProject } from "./lib/utils";
@@ -42,24 +42,30 @@ export const routes = (config: routesProps) => {
     const routerApp = config.app ? config.app : express();
     const lang = fileExtension;
     const fileList: string[] = readFiles(startDir, lang);
+    console.log({ fileList })
     if (fileList && fileList.length) {
         fileList.forEach(filename => {
             // ---------------
             if (isAutoSetup) { writeToFileSyncStartupCode(startDir, filename); }
             // ------------------
-            let [apiUrl, nameOfParamsMatch] = createRoutePath({ name: filename, startDir: startDir }, lang)
+            let { route, paramsNames } = createRoutePath({ name: filename, startDir: startDir }, lang)
             const exportFunctions = require(filename);
-            const filteredHttpMethods = filterAndLowercaseHttpMethods(Object.keys(exportFunctions));// 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace' | 'copy' | 'lock' | 'move' | 'unlock' | 'propfind' | 'proppatch' | 'mkcol' | 'checkout' | 'search'
+            const filteredHttpMethods = filterAndLowercaseHttpMethods(Object.keys(exportFunctions));
             filteredHttpMethods.forEach(method => {
 
-                if (nameOfParamsMatch && typeof nameOfParamsMatch == 'string') {
-                    routerApp[method](apiUrl, (req: Request, _res: Response, next: NextFunction) => {
-                        // @ts-ignore
-                        req.params[nameOfParamsMatch] = req?.params?.[0]?.split('/');
+                if (paramsNames.length) {
+                    routerApp[method](route, (req: Request, _res: Response, next: NextFunction) => {
+                        paramsNames.forEach((paramsName, i) => {
+                            // @ts-ignore
+                            req['*-params'] = { ...req['*-params'] = {}, [paramsName]: req?.params?.[i]?.split('/') };
+                            // @ts-ignore 
+                            req.params[paramsName] = req?.params?.[i]?.split('/');
+                        })
                         next()
                     }, exportFunctions[method.toUpperCase()])
                 } else {
-                    routerApp[method](apiUrl, exportFunctions[method.toUpperCase()])
+
+                    routerApp[method](route, exportFunctions[method.toUpperCase()])
                 }
 
             });

@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { getStarParamsByRoute } from './utils';
 function getValidFunctionName(input: string): string {
     // Replace invalid characters with underscores
     const cleanName = input.replace(/[\[\]\/]+/g, '_');
@@ -13,6 +14,10 @@ function getValidFunctionName(input: string): string {
 }
 export function writeToFileSyncStartupCode(startDir: string, filename: string) {
     // -----------start of make function name----------
+    // start to process
+    const starParams = getStarParamsByRoute(filename)
+
+    // end to process
     const filePath = filename;
     const ignorePath = startDir;
     let sendMessage = 'hello';
@@ -32,24 +37,43 @@ export function writeToFileSyncStartupCode(startDir: string, filename: string) {
         }
     }
     // -----------end of make function name----------
-    const startupTsContent = `
-import { type Request, type Response } from 'express'
+    const startupTsContent = starParams.length ?
+        `import { type Request as ExpressRequest, type Response } from 'express';
+type Request = ExpressRequest & {
+    ${starParams.map(p => `${p}: string[];`).join('\n\t')}
+};\n
+export const GET = async (req: Request, res: Response) => {
+    const { ${starParams.map(param => param).join(', ')} } = req.params;\n
+    res.send({ ${starParams.map(param => param).join(', ')} })
+};
+    `
+        : `import { type Request, type Response } from 'express';
 
 export const GET = async (req: Request, res: Response) => {
+    res.send('${sendMessage}')
+};`;
+
+
+    const startupMjsContent = starParams.length ?
+        `export const GET = async (req, res) => {
+      const { ${starParams.map(param => param).join(', ')} } = req.params;\n
+    res.send({ ${starParams.map(param => param).join(', ')} })
+};
+    `
+        : `export const GET = async (req, res) => {
   res.send('${sendMessage}')
-}
-`;
+};`;
 
-
-    const startupMjsContent = `
-
-const ${FunctionName_for_get} = async (req, res) => {
-  res.send('${sendMessage}')
-}
-
-export const GET = ${FunctionName_for_get}
-`;
-    const startupJsContent = `const ${FunctionName_for_get} = async (req, res) => {
+    const startupJsContent = starParams.length ?
+        `const ${FunctionName_for_get} = async (req, res) => {
+        const { ${starParams.map(param => param).join(', ')} } = req.params;\n
+        res.send({ ${starParams.map(param => param).join(', ')} })
+      };
+      
+      module.exports = {
+        GET: ${FunctionName_for_get},
+      };`
+        : `const ${FunctionName_for_get} = async (req, res) => {
     res.send('${sendMessage}');
   };
   

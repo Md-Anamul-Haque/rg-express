@@ -2,40 +2,83 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-function getSpradesLength(path:string) {
-    const pattern = /\[\.\.\.\w+\]/g; // Regular expression pattern to match '[...<any>]'
-    const matches = path.match(pattern);
-    return matches ? matches.length : 0;
+function getPathParsePowers(path: string) {
+    const pathSplit = path.split('/');
+    // const slugPattern = /\[\w+\]/g; // Regular expression slugPattern to match '[<any>]'
+    // const spreadPattern = /\[\.\.\.\w+\]/g; // Regular expression spreadPattern to match '[...<any>]'
+    const pathSplitLength = pathSplit.length;
+    // const slugMatches = path.match(slugPattern);
+    // const slugMatchesLength = slugMatches ? slugMatches.length : 0;
+    // const spreadMatches = path.match(spreadPattern);
+    // const spreadMatchesLength = spreadMatches ? spreadMatches.length : 0;
+    // return ({
+    //     slugs: slugMatchesLength,
+    //     spreads: spreadMatchesLength,
+    //     splits: pathSplitLength,
+    //     sum: pathSplitLength + spreadMatchesLength + slugMatchesLength
+    // })
+    let slugsStartAt = 0;
+    let slugStartAt = 0;
+    let slugsPower = 0;
+    let slugPower = 0;
+
+    pathSplit.forEach((m, i) => {
+        if (m.match(/\[\w+\]/)) {
+            slugPower += pathSplitLength - i
+            slugStartAt = slugStartAt ? slugStartAt : i + 1;
+        } else if (m.match(/\[\.\.\.\w+\]/)) {
+            slugsPower += pathSplitLength - i
+            slugsStartAt = slugsStartAt ? slugsStartAt : i + 1;
+        }
+    });
+    return ({
+        slugPower, slugsPower, pathSplitLength, slugsStartAt, slugStartAt
+    })
 }
-function getSlugsLength(path:string) {
+function getSlugsLength(path: string) {
     const pattern = /\[\w+\]/g; // Regular expression pattern to match '[<any>]'
     const matches = path.match(pattern);
     return matches ? matches.length : 0;
 }
-function customSortSprades(a:string, b:string) {
+function customSortSpread(a: string, b: string) {
     if (a === b) {
         return 0;
     }
-  
-    const indexOfA = a.indexOf('[...');
-    const indexOfB = b.indexOf('[...');
-  
-    if (indexOfA>indexOfB) {
+    const { slugPower: slugPowerA, slugsPower: slugsPowerA, pathSplitLength: pathSplitLengthA, slugStartAt: slugStartAtA, slugsStartAt: slugsStartAtA } = getPathParsePowers(a)
+    const { slugPower: slugPowerB, slugsPower: slugsPowerB, pathSplitLength: pathSplitLengthB, slugStartAt: slugStartAtB, slugsStartAt: slugsStartAtB } = getPathParsePowers(b)
+
+    if (slugsStartAtA > slugsStartAtB) {
         return -1;
-    } else if (indexOfA<indexOfB) {
-        return 1;
-    }else if(indexOfA == indexOfB){
-        const slengthA=getSpradesLength(a)
-        const slengthB=getSpradesLength(b)
-        if (slengthA==slengthB) {
-            return(a.length > b.length?-1:1)
+    } else if (slugsStartAtA < slugsStartAtB) {
+        return 1
+    } else {
+        if (slugsPowerA > slugsPowerB) {
+            return -1;
+        } else if (slugsPowerA < slugsPowerB) {
+            return 1;
         } else {
-            return(slengthA > slengthB?-1:1)
+            if (slugStartAtA > slugStartAtB) {
+                return -1
+            } else if (slugStartAtA < slugStartAtB) {
+                return 1
+            } else {
+                if (slugPowerA > slugPowerB) {
+                    return -1
+                } else if (slugPowerA < slugPowerB) {
+                    return 1
+                } else {
+                    if (pathSplitLengthA > pathSplitLengthB) {
+                        return (-1)
+                    } else if (pathSplitLengthA < pathSplitLengthB) {
+                        return (1)
+                    } else {
+                        return a.localeCompare(b);
+                    }
+                }
+            }
         }
     }
-  
-    return a.localeCompare(b);
-  }
+}
 function customSort(a: string, b: string): number {
     if (a === b) {
         return 0;
@@ -43,90 +86,77 @@ function customSort(a: string, b: string): number {
 
     const hasBracketA = a.includes('[');
     const hasBracketB = b.includes('[');
-    // const hasEllipsisA = a.includes('[...');
-    // const hasEllipsisB = b.includes('[...');
-
-    // if (hasEllipsisA && !hasEllipsisB) {
-    //     return 1;
-    // } else if (!hasEllipsisA && hasEllipsisB) {
-    //     return -1;
-    // }
 
     if (hasBracketA && !hasBracketB) {
         return 1;
     } else if (!hasBracketA && hasBracketB) {
         return -1;
-    }else if(hasBracketA==hasBracketB){
-        const slugsA_is=getSlugsLength(a)
-        const slugsB_is=getSlugsLength(b)
-        if (slugsA_is==slugsB_is) {
-            return(a.length > b.length?-1:1)
+    } else if (hasBracketA && hasBracketB) {
+        const slugsALength = getSlugsLength(a)
+        const slugsBLength = getSlugsLength(b)
+        if (slugsALength === slugsBLength) {
+            return (a.length > b.length ? -1 : 1)
         } else {
-            return(slugsA_is > slugsB_is?-1:1)
+            return (slugsALength > slugsBLength ? -1 : 1)
         }
     }
 
     return a.localeCompare(b);
 }
 
-const sortNowAsMyG=(fl:string[]):string[]=>{
-    let fl1=fl.filter(l=>!l.includes('[...'))
-    let fl2=fl.filter(l=>l.includes('[...'))
-    const result=[...fl1.sort(customSort),...fl2.sort(customSortSprades)]
-    return(result)
+const sortNowAsMyG = (fl: string[]): string[] => {
+    let fl1 = fl.filter(l => !l.includes('[...'))
+    let fl2 = fl.filter(l => l.includes('[...'))
+    const result = [...fl1.sort(customSort), ...fl2.sort(customSortSpread)]
+    return (result)
 }
 
-export function readFiles(directoryPath: string, file_extension:string): string[] {
+export function readFiles(directoryPath: string, file_extension: string): string[] {
     try {
         const files: string[] = fs.readdirSync(directoryPath);
-    const fileList: string[] = [];
-    // ...\..\\.. --> .../..//..
-    directoryPath = directoryPath.replace(/\\/g, '/');
-
-    files.forEach((file: string) => {
-        let filePath: string = path.join(directoryPath, file);
-
+        const fileList: string[] = [];
         // ...\..\\.. --> .../..//..
-        filePath = filePath.replace(/\\/g, '/');
+        directoryPath = directoryPath.replace(/\\/g, '/');
 
-        const stats: fs.Stats = fs.statSync(filePath);
-        if (stats.isDirectory()) {
-            // If it's a directory, recursively read files inside it
-            const subFiles: string[] = readFiles(filePath, file_extension);
+        files.forEach((file: string) => {
+            let filePath: string = path.join(directoryPath, file);
 
-            fileList.push(...subFiles);
-        } else {
-            let fname = filePath.split('/').at(-1) || '';
             // ...\..\\.. --> .../..//..
-            fname = fname.replace(/\\/g, '/');
-            const file_regex=new RegExp(`^route\.${file_extension}$`)
-            // if (lang == 'ts') {
+            filePath = filePath.replace(/\\/g, '/');
+
+            const stats: fs.Stats = fs.statSync(filePath);
+            if (stats.isDirectory()) {
+                // If it's a directory, recursively read files inside it
+                const subFiles: string[] = readFiles(filePath, file_extension);
+
+                fileList.push(...subFiles);
+            } else {
+                let fname = filePath.split('/').at(-1) || '';
+                // ...\..\\.. --> .../..//..
+                fname = fname.replace(/\\/g, '/');
+                const file_regex = new RegExp(`^route\.${file_extension}$`)
+                // if (lang == 'ts') {
                 if (file_regex.test(fname)) {
                     fileList.push(filePath);
                 }
-            // } else if (lang == 'js') {
-            //     if (/^route\.js$/.test(fname)) {
-            //         fileList.push(filePath);
-            //     }
-            // }
-        }
-    });
-    let endFileList: string[] = []
-    fileList.forEach(file => {
-        file = file.replace(/\\/g, '/');
-        if (file_extension == 'ts') {
-            if (/route\.ts$/.test(file)) {
-                endFileList.push(file)
             }
-        } else if (file_extension == 'js') {
-            if (/route\.js$/.test(file)) {
-                endFileList.push(file)
+        });
+        let endFileList: string[] = []
+        fileList.forEach(file => {
+            file = file.replace(/\\/g, '/');
+            if (file_extension == 'ts') {
+                if (/route\.ts$/.test(file)) {
+                    endFileList.push(file)
+                }
+            } else if (file_extension == 'js') {
+                if (/route\.js$/.test(file)) {
+                    endFileList.push(file)
+                }
             }
-        }
-    });
-    return sortNowAsMyG(endFileList);
+        });
+        return sortNowAsMyG(endFileList);
     } catch (error) {
         console.error(error)
-        return([])
+        return ([])
     }
 }
