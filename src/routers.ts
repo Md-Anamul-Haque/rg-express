@@ -42,7 +42,6 @@ export const routes = (config: routesProps) => {
     const routerApp = config.app ? config.app : express();
     const lang = fileExtension;
     const fileList: string[] = readFiles(startDir, lang);
-    console.log({ fileList })
     if (fileList && fileList.length) {
         fileList.forEach(filename => {
             // ---------------
@@ -56,8 +55,6 @@ export const routes = (config: routesProps) => {
                 if (paramsNames.length) {
                     routerApp[method](route, (req: Request, _res: Response, next: NextFunction) => {
                         paramsNames.forEach((paramsName, i) => {
-                            // @ts-ignore
-                            req['*-params'] = { ...req['*-params'] = {}, [paramsName]: req?.params?.[i]?.split('/') };
                             // @ts-ignore 
                             req.params[paramsName] = req?.params?.[i]?.split('/');
                         })

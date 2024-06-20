@@ -2,8 +2,6 @@ import fs from "fs";
 
 export function getStarParamsByRoute(route: string) {
     const matches = route.match(/\[\.\.\.\w+\]/g);
-    console.log({ matches })
-    console.log({ matches, length: matches?.length })
     let paramsNames: string[] = [];
     if (matches) {
         matches.forEach((match) => {
@@ -14,7 +12,6 @@ export function getStarParamsByRoute(route: string) {
             }
         });
     }
-    console.log({ paramsNames })
     return (paramsNames)
 }
 export function createRoutePath({ name, startDir }: { name: string, startDir: string }, file_extension: string): { route: string, paramsNames: string[] } {
