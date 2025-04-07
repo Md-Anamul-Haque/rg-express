@@ -42,6 +42,9 @@
     "rg",
     "2x_time_first"
   ],
+  "peerDependencies": {
+    "express": ">=5.0.0"
+  },
   "peerDependenciesMeta": {
     "express": {
       "optional": false

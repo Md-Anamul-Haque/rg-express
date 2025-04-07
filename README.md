@@ -22,6 +22,16 @@ yarn add rg-express
 
 ---
 
+## Requirements
+
+- **Express**: `>=5.0.0` is required for compatibility with `rg-express`.
+- Make sure you have Express v5 or higher installed.
+- Install Express using `npm install express@^5.0.0` or `yarn add express@^5.0.0`.
+- Older versions of Express are not supported.
+- For full functionality, ensure your Express version meets the requirement.
+
+---
+
 ## 🗂️ Project Structure
 
 ### Basic Setup
