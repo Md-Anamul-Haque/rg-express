@@ -1,96 +1,81 @@
-import fs from "fs";
+import fs from 'fs';
+import { HttpMethod } from '../types';
 
-export function getStarParamsByRoute(route: string) {
-    const matches = route.match(/\[\.\.\.\w+\]/g);
-    let paramsNames: string[] = [];
-    if (matches) {
-        matches.forEach((match) => {
-            // Extract the \w part from the match and push it to paramsNames array
-            const param = match.match(/\w+/);
-            if (param && Array.isArray(param)) {
-                paramsNames.push(param[0]);
-            }
-        });
+export const httpMethods = [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+    'PATCH',
+    'OPTIONS',
+    'HEAD',
+    'CONNECT',
+    'TRACE'
+] as const;
+export function getStarParamsByRoute(route: string): string[] {
+    const matches = route.match(/\[\.\.\.([a-zA-Z0-9_]+)\]/g) || [];
+    return matches.map(match => match.match(/\w+/)?.[0]).filter(Boolean) as string[];
+}
+
+export function getSlugParamsByRoute(route: string): string[] {
+    const matches = route.match(/\[(?!\.\.\.)([a-zA-Z0-9_]+)\]/g) || [];
+    return matches.map(match => match.match(/\w+/)?.[0]).filter(Boolean) as string[];
+}
+export function getAllRouteParams(route: string): string[] {
+    const matches = [...route.matchAll(/\[(\.\.\.)?([a-zA-Z0-9_]+)\]/g)];
+    return matches.map(([, , param]) => param);
+}
+export function checkForDuplicateParams(route: string): void {
+    const matches = [...route.matchAll(/\[(\.\.\.)?([a-zA-Z0-9_]+)\]/g)];
+    const params = matches.map(([, , param]) => param);
+
+    // Using a Set to check for duplicates
+    const uniqueParams = new Set(params);
+
+    if (uniqueParams.size !== params.length) {
+        throw new Error(`Duplicate parameter(s) detected in route: ${params.filter((param, index, self) => self.indexOf(param) !== index).join(', ')}`);
     }
-    return (paramsNames)
 }
-export function createRoutePath({ name, startDir }: { name: string, startDir: string }, file_extension: string): { route: string, paramsNames: string[] } {
-    let route = name;
-    const regexpRouteFileName = new RegExp(`/?route\.${file_extension}$`)
-    const RegexpStartDir = new RegExp(`^/?${startDir}/?`)
 
-    route = route.replace(startDir, '').replace(RegexpStartDir, '').replace(regexpRouteFileName, '') || '/';
-    // [slug] --> slug
+export function createRoutePath({ name, startDir }: { name: string; startDir: string }, fileExtension: string): { route: string; } {
+    let route = name
+        .replace(new RegExp(`^${startDir}/?`), '')
+        .replace(new RegExp(`/?route\.${fileExtension}$`), '') || '/';
+
     route = route.replace(/\[(\w+)\]/g, ':$1');
-
-
-    const paramsNames = getStarParamsByRoute(route);
-
-    // [...slugs] --> * start hear 
-    route = route.replace(/\[\.\.\.(\w+)\]/g, '*');
-    // [...slugs] --> * end hear
-
-
-    // ...\..\\.. --> .../..//..
-    route = route.replace(/\\/g, '/');
-    return { route, paramsNames }
-}
-export const httpMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE', 'COPY', 'LOCK', 'MOVE', 'UNLOCK', 'CHECKOUT', 'SEARCH']
-
-export function filterHttpMethods(inputArray: string[]): string[] {
-    return inputArray.filter(method => httpMethods.includes(method));
-}
-type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace' | 'copy' | 'lock' | 'move' | 'unlock' | 'checkout' | 'search';
-
-export function filterAndLowercaseHttpMethods(inputArray: string[]): HttpMethod[] {
-    return inputArray.filter(method => httpMethods.includes(method))
-        .map(method => method.toLowerCase()) as HttpMethod[];
+    route = route.replace(/\[\.\.\.(\w+)\]/g, "{*$1}").replace(/\\/g, '/');
+    // if route is not start with / then add /
+    if (!route.startsWith('/')) {
+        route = '/' + route;
+    }
+    route = route.replace(/\/+/g, '/'); // Remove duplicate slashes
+    return { route };
 }
 
-// export function normalizePath(url: string): string {
-//     // Remove leading and trailing slashes
-
-//     // /.../..../ --> .../....
-//     url = url.replace(/^\/|\/$/g, '');
-//     // ...\..\\.. --> .../..//..
-//     url = url.replace(/\\/g, '/');
-
-//     // Replace consecutive slashes with a single slash
-
-//     // ...//.../ --> .../.../
-//     url = url.replace(/\/+/g, '/');
-//     // Check if the path starts with './' or '/'
-//     if (url.startsWith('./')) {
-//         return url.substring(2);
-//     } else if (url.startsWith('/')) {
-//         return url.substring(1);
-//     } else {
-//         return url;
-//     }
-// }
-
-
-export function getFileExtension(): void {
-    const fileName = new Error().stack?.split("\n")[2].match(/\/([^\/]+)$/)?.[1];
-    const fileExtension = fileName?.split('.').pop();
-    console.log(fileExtension);
+export function filterAndLowercaseHttpMethods(methods: string[]): HttpMethod[] {
+    return methods
+        .filter(method => httpMethods.includes(method.toUpperCase() as (typeof httpMethods)[number]))
+        .map(method => method.toLowerCase() as HttpMethod);
 }
-
-
 
 export function isTypeScriptProject(): boolean {
-    // Check for TypeScript file extensions
     try {
-        // Check for TypeScript file extensions
-        const tsFilesExist = fs.readdirSync(process.cwd()).some(file => file.endsWith('.ts') || file.endsWith('.tsx'));
-
-        // Check for tsconfig.json file
-        const tsConfigExists = fs.existsSync('tsconfig.json');
-        // console.log({tsConfigExists})
-        // Check for TypeScript dependencies
-        return tsFilesExist || tsConfigExists;
-
-    } catch (error) {
-        return (false)
+        // const files = fs.readdirSync(process.cwd());
+        // return files.some(file => file.endsWith('.ts') || file.endsWith('.mts')) || fs.existsSync('tsconfig.json');
+        return fs.existsSync('tsconfig.json');
+    } catch {
+        return false;
     }
+}
+
+/**
+ * Determines the file extension of the current executing file (e.g., .ts, .js, .mjs, etc.)
+ * by inspecting the call stack.
+ * 
+ * @returns {string} The file extension (e.g., 'ts', 'js', 'mjs', etc.)
+ */
+export function determineFileExtension(): string {
+    const stack = new Error().stack?.split('\n')[3]; // Get the stack trace and grab the 3rd line (caller location)
+    const match = stack?.match(/\((.*?\.([a-zA-Z]+)):\d+:\d+\)/); // Match file extension pattern
+    return match ? match[2] : ''; // Return the file extension (e.g., 'ts', 'js', etc.)
 }

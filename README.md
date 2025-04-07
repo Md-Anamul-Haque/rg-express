@@ -1,165 +1,394 @@
-# `rg-express` User Guide
+# rg-express 🛣️ User Guide
 
-## Introduction
+## 🚀 Introduction
 
-`rg-express` is a route generator library for Express inspired by Next.js and Express itself. It simplifies the process of setting up routes in an Express application, following a modular structure. This guide will walk you through the installation, setup, and usage of `rg-express` in your project.
+**rg-express** is a route generator for Express, inspired by the modular routing style of **Next.js**. It helps developers manage routes with cleaner structure, reduced boilerplate, and optional middleware support — all by convention over configuration.
 
-### You can Download or Clone ([Demo / Example project](https://github.com/Md-Anamul-Haque/rg-express_example)) with TypeScript
+👉 [Explore the Example Project (TypeScript)](https://github.com/Md-Anamul-Haque/rg-express_example)
 
-## Installation
+---
 
-You can install `rg-express` using npm or yarn:
+## 📦 Installation
+
+Install using your preferred package manager:
 
 ```bash
 npm install rg-express
 # or
+pnpm add rg-express
+# or
 yarn add rg-express
 ```
 
-## Project Structure
+---
+
+## 🗂️ Project Structure
 
 ### Basic Setup
 
-#### Without src Directory
+#### Without `src` Directory
 
-```bash
+```
 ├── package.json
-├── routes
+├── routes/
 ├── app.ts or app.js
-└── ...
 ```
 
-#### or
+#### With `src` Directory
 
-```bash
+```
 ├── package.json
-├── src
-│   ├── routes
-│   ├── app.ts or app.js
+├── src/
+│   ├── routes/
+│   └── app.ts or app.js
 ```
 
-#### in routes
+### Inside `routes` Folder
 
-```bash
- routes
-   ├── product
-   │      ├──route.ts ['/product']
-   │      └──[slug]/route.ts ['/product/:slug']
-   │                    └── (req.params.slug) // string
-   │── hello
-   │      └──[...slugs]
-   │             └── route.ts ['/hello/:*']
-   │                   └── (req.params.slugs) // string[]
-   └── ...
+```
+routes/
+├── product/
+│   ├── route.ts         → /product
+│   └── [slug]/route.ts  → /product/:slug     → req.params.slug (string)
+├── hello/
+│   └── [...slugs]/route.ts → /hello/*        → req.params.slugs (string[])
 ```
 
-## Usage
+---
 
-#### Without src Directory
+## ⚙️ Basic Usage (Detailed)
 
-```js
-// app.js
-const express = require('express');
-const rg = require('rg-express');
+`rg-express` makes it easy to wire up your routes by pointing to a directory. Under the hood, it scans the folder, maps files to route paths, and returns an Express Router. You can attach this to any Express app instance.
+
+---
+
+### 🔹 Option 1: Minimal Setup (String Path)
+
+The simplest way—just provide the root directory where your `routes/` folder exists.
+
+```ts
+// app.ts
+
+import express from 'express';
+import { routes } from 'rg-express';
+
 const app = express();
-app.use(rg.routes(__dirname));
 
-app.listen(8001, () => {
-  console.log('server is running at http://localhost:8001');
+app.use(express.json());
+app.use(routes(__dirname)); // Loads routes from __dirname/routes by default
+
+app.listen(3000, () => {
+  console.log('🚀 Server running at http://localhost:3000');
 });
 ```
 
-## Route Configuration
+📁 **Directory structure**
 
-```typescript
-// routes/hello/route.ts
-/**
- * @api_endpoint : /hello/
- *
- */
-export const GET = (req: Request, res: Response) => {
-  res.send('hello rg-express ');
-};
-
-// --------------- Middlewares ----------------
-const handlePost = (req: Request, res: Response) => {
-  //  ...
-};
-
-// checkAuth is a normal expressjs Middleware function
-export const POST = [checkAuth, handlePost];
+```
+project-root/
+├── routes/
+│   └── hello/
+│       └── route.ts
+└── app.ts
 ```
 
-### or, <i>with js</i>
+🧠 In `routes/hello/route.ts`:
 
-```javascript
-// routes/hello/route.js
+```ts
+export const GET = (req, res) => {
+  res.send('Hello world!');
+};
+```
+
+🔗 Access: `http://localhost:3000/hello`
+
+---
+
+### 🔹 Option 2: Full Configuration
+
+You can provide an object with more options:
+
+```ts
+import express from 'express';
+import { routes } from 'rg-express';
+
+const app = express();
+
+app.use(
+  routes({
+    baseDir: __dirname, // required
+    routeGenIfEmpty: true, // optional: creates template files if missing
+    app, // optional: attaches directly to the app
+  })
+);
+
+app.listen(3000, () => {
+  console.log('✅ Server ready at http://localhost:3000');
+});
+```
+
+#### ✅ `RouteConfig` interface options:
+
+| Option            | Type      | Description                                       |
+| ----------------- | --------- | ------------------------------------------------- |
+| `baseDir`         | `string`  | **Required.** Root folder (where `routes/` lives) |
+| `routeGenIfEmpty` | `boolean` | Auto-generates starter route if file is empty     |
+| `app`             | `Express` | Optional: If provided, routes attach directly     |
+| `autoSetup`       | `boolean` | ⚠️ _Deprecated_ in favor of `routeGenIfEmpty`     |
+
+---
+
+### 🔹 Option 3: Use Default Export
+
+You can also use the default `rg` function:
+
+```ts
+import express from 'express';
+import rg from 'rg-express';
+
+const app = express();
+
+app.use(rg({ baseDir: __dirname }));
+```
+
+🔁 This is equivalent to:
+
+```ts
+import { routes } from 'rg-express';
+
+app.use(routes({ baseDir: __dirname }));
+```
+
+---
+
+## 💡 Pro Tip
+
+Set your routes folder to `src/routes` in a TypeScript project:
+
+```ts
+import { routes } from 'rg-express';
+
+app.use(routes({ baseDir: path.join(__dirname, 'src') }));
+```
+
+Then put your route files under `src/routes/...`
+
+---
+
+## 📚 Bonus: What Happens Under the Hood?
+
+Given `baseDir = __dirname`:
+
+- It looks for `routes/` inside `baseDir`.
+- Matches any file named `route.ts` or `route.js`
+- Automatically converts folders like `routes/product/[id]/route.ts` to `/product/:id`
+
+---
+
+## ⚙️ Route Configuration
+
+You define HTTP handlers (`GET`, `POST`, etc.) by exporting them from route files.
+
+### TypeScript Example
+
+```ts
+// routes/hello/route.ts
+
+import type { Request, Response } from 'express';
+
 /**
- * @api_endpoint : /hello/
- *
+ * @api_endpoint: /hello/
  */
+export const GET = (req: Request, res: Response) => {
+  res.send('Hello from rg-express!');
+};
+
+// With middleware
+export const POST = [
+  checkAuth, // your middleware
+  (req: Request, res: Response) => {
+    res.send('Posted with middleware!');
+  },
+];
+```
+
+### JavaScript Example
+
+```js
+// routes/hello/route.js
 
 module.exports.GET = (req, res) => {
-  res.send('hello rg-express ');
+  res.send('Hello from rg-express!');
 };
 
-// --------------- Middlewares ----------------
-const handlePost = (req: Request, res: Response) => {
-  //  ...
+const handlePost = (req, res) => {
+  res.send('Posted with middleware!');
 };
 
-// checkAuth is a normal expressjs Middleware function
 module.exports.POST = [checkAuth, handlePost];
 ```
 
-### `routes/abc/route.ts`
+---
 
-The routes in this project adhere to specific patterns to handle various scenarios:
+## 📌 Dynamic Routing
 
-> This file handles the route for a specific scenario.
+### `[slug]` – Single Dynamic Segment
 
-### `routes/abc/[slug]/route.ts` --> [req.params.slug]
+```ts
+// routes/abc/[slug]/route.ts
 
-This route corresponds to paths such as `/abc/something/`. The `[slug]` notation denotes a dynamic parameter, representing a single value (e.g., `/abc/example/`). In your code, access this parameter using `req.params.slug`.
-
-### `routes/abc/[...slugs]/route.ts` --> [req.params.slugs]
-
-This route is designed for paths with multiple dynamic parameters, where the `[...slugs]` notation signifies a variable number of values (e.g., `/abc/first/second/third/`). In your code, these values are accessible as an array: `req.params.slugs`.
-
-## Middlewares
-
-You can directly assign functions for different HTTP methods with using any middlewares:
-
-## Middlewares
-
-You can incorporate middlewares for different HTTP methods:
-
-### JavaScript
-
-```javascript
-// route.js
-module.exports.GET = [auth, getUser]; // Middleware for GET requests
-module.exports.POST = [auth, authIsAdmin, newUser]; // Middleware for POST requests
-module.exports.PUT = [auth, authIsAdmin, updateUser]; // Middleware for PUT requests
-module.exports.DELETE = [auth, authIsAdmin, deleteUser]; // Middleware for DELETE requests
+export const GET = (req: Request, res: Response) => {
+  res.send(`Slug: ${req.params.slug}`);
+};
 ```
 
-### TypeScript
+✅ Matches: `/abc/apple`, `/abc/banana`
 
-```typescript
-// route.ts
-export const GET = [auth, getUser]; // Middleware for GET requests
-export const POST = [auth, authIsAdmin, newUser]; // Middleware for POST requests
-export const PUT = [auth, authIsAdmin, updateUser]; // Middleware for PUT requests
-export const DELETE = [auth, authIsAdmin, deleteUser]; // Middleware for DELETE requests
+---
+
+### `[...slugs]` – Catch-All Segment
+
+```ts
+// routes/abc/[...slugs]/route.ts
+
+export const GET = (req: Request, res: Response) => {
+  res.send(`Slugs: ${req.params.slugs.join(', ')}`);
+};
 ```
 
-## Contributing
+✅ Matches: `/abc/a`, `/abc/a/b/c`
 
-If you'd like to contribute to the project, please follow the guidelines outlined in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+---
 
-## Conclusion
+## 🛡️ Smart Middleware Support
 
-With `rg-express`, you can easily organize and set up routes in your Express application, making it more modular and scalable. Happy coding!
+You can use Express middlewares before your handler. Just export them as an array:
 
-#### Happy coding!
+### Example with Middlewares
+
+```ts
+// routes/user/route.ts
+
+import { Request, Response, NextFunction } from 'express';
+import { auth, isAdmin } from '../../middlewares';
+
+const getUsers = (req: Request, res: Response) => {
+  res.send('List of users');
+};
+
+const createUser = (req: Request, res: Response) => {
+  res.send('User created!');
+};
+
+export const GET = [auth, getUsers];
+export const POST = [auth, isAdmin, createUser];
+```
+
+Or define inline handlers:
+
+```ts
+// routes/user/route.ts
+
+export const POST = [
+  auth,
+  isAdmin,
+  (req: Request, res: Response) => {
+    // Logic here
+    res.send('User created with inline handler');
+  },
+];
+```
+
+---
+
+## 🧠 Dynamic Routes
+
+### `[slug]` → Single Param
+
+```ts
+// routes/blog/[slug]/route.ts
+
+export const GET = (req: Request, res: Response) => {
+  const { slug } = req.params;
+  res.send(`You requested blog: ${slug}`);
+};
+```
+
+### `[...slugs]` → Wildcard / Catch-All
+
+```ts
+// routes/files/[...slugs]/route.ts
+
+export const GET = (req: Request, res: Response) => {
+  const { slugs } = req.params; // slugs is a string[]
+  res.send(`Path: ${slugs.join('/')}`);
+};
+```
+
+---
+
+## 🧱 JavaScript Support
+
+```js
+// routes/hello/route.js
+
+module.exports.GET = (req, res) => {
+  res.send('Hello from JavaScript!');
+};
+
+module.exports.POST = [
+  checkAuth,
+  (req, res) => {
+    res.send('Post with middleware in JS!');
+  },
+];
+```
+
+---
+
+## 🧩 Middleware Utilities
+
+You can create reusable middleware functions like:
+
+```ts
+// middlewares/index.ts
+
+import { Request, Response, NextFunction } from 'express';
+
+export const auth = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.headers.authorization) {
+    return res.status(401).send('Unauthorized');
+  }
+  next();
+};
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (req.headers['x-role'] !== 'admin') {
+    return res.status(403).send('Forbidden');
+  }
+  next();
+};
+```
+
+Then reuse them smartly in routes.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) for details on submitting PRs or reporting issues.
+
+---
+
+## 🎉 Conclusion
+
+`rg-express` makes route organization in Express apps easier, cleaner, and more modular with built-in support for:
+
+- ✅ TypeScript & JavaScript
+- 🧠 Dynamic & catch-all routes
+- 🧩 Express-style middleware
+- ⚡ File-based auto-loading
+
+> Build smarter APIs, faster.
+
+---
