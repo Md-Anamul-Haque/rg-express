@@ -1,4 +1,10 @@
-# rg-express 🛣️ User Guide
+# rg-express
+
+## User Guide
+
+Welcome to the **rg-express** user guide! This document will help you get started with **rg-express**, a powerful route generator for Express that simplifies route management with file-based approach. Whether you're building APIs in TypeScript or JavaScript, **rg-express** provides a clean, intuitive way to organize your routes.
+
+---
 
 ## 🚀 Introduction
 
