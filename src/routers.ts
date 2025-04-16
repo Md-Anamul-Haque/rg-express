@@ -9,10 +9,31 @@ import { FileExt, HttpMethod } from './types';
  *
  * @property baseDir - The base directory where route files are located.
  * @property routeGenIfEmpty - Automatically sets up startup code if the file is empty.
- * @deprecated This property is deprecated and may be removed in future versions. Use routeGenIfEmpty instead.
  * @property app - An optional Express application instance to use for routing.
  */
 // routeGenIfEmpty
+
+interface RouteConfigWithApp {
+    baseDir: string;
+    routeGenIfEmpty?: boolean;
+    /**
+     * @deprecated Use `routeGenIfEmpty` instead.
+     */
+    autoSetup?: boolean;
+    /**
+     * @deprecated skip to pass app.
+     */
+    app: Express;
+}
+type RouteConfigWithoutApp = string | {
+    baseDir: string;
+    routeGenIfEmpty?: boolean;
+    /**
+     * @deprecated Use `routeGenIfEmpty` instead.
+     */
+    autoSetup?: boolean;
+}
+
 interface RouteConfig {
     baseDir: string;
     routeGenIfEmpty?: boolean;
@@ -20,14 +41,23 @@ interface RouteConfig {
      * @deprecated Use `routeGenIfEmpty` instead.
      */
     autoSetup?: boolean;
+    /**
+     * @deprecated skip to pass app.
+     */
     app?: Express;
 }
+
+
 export type RoutesProps = string | RouteConfig;
 
 const consoleP = new ProcessConsole();
 const consoleP2 = new ProcessConsole();
 
-export const routes = (config: RoutesProps): Router => {
+
+export function routes(config: RouteConfigWithoutApp): Router
+export function routes(config: RouteConfigWithApp): void
+
+export function routes(config: RoutesProps): Router | void {
     const normalizedConfig: RouteConfig = typeof config === 'string'
         ? { baseDir: config, autoSetup: false, routeGenIfEmpty: false }
         : config;
@@ -38,7 +68,7 @@ export const routes = (config: RoutesProps): Router => {
 
 
     console.time('✓ Ready in');
-
+    const isRouteGenIfEmpty = Boolean(normalizedConfig.routeGenIfEmpty || normalizedConfig.autoSetup);
     const fileExtension = determineFileExtension();
     validateFileExtension(fileExtension);
 
@@ -46,9 +76,9 @@ export const routes = (config: RoutesProps): Router => {
     const startDir = `${normalizedConfig.baseDir}/routes`.replace(/\\/g, '/');
     const isTsProject = isTypeScriptProject();
     const canAutoSetup = isTsProject ? fileExtension === 'ts' : true;
-    const shouldAutoSetup = canAutoSetup && (!!normalizedConfig.routeGenIfEmpty || !!normalizedConfig.autoSetup);
+    const shouldAutoSetup = canAutoSetup && isRouteGenIfEmpty;
 
-    if (normalizedConfig.routeGenIfEmpty || normalizedConfig.autoSetup) {
+    if (isRouteGenIfEmpty) {
         shouldAutoSetup
             ? consoleP2.complete(`Auto setup starter Code_ifEmptyFile with ${fileExtension}`)
             : consoleP2.fail(`AutoSetup: Project is '${isTsProject ? 'TypeScript' : fileExtension}', but running file is '${fileExtension}'`);
@@ -56,8 +86,7 @@ export const routes = (config: RoutesProps): Router => {
 
     consoleP.start('Route processing');
 
-    const router = normalizedConfig.app || express.Router()
-        ;
+    const router = normalizedConfig.app || express.Router();
     const fileList = FileReader.readFiles(startDir, fileExtension as FileExt);
     if (fileList.length) {
         processRoutes(fileList, startDir, router, shouldAutoSetup, fileExtension);
@@ -66,7 +95,9 @@ export const routes = (config: RoutesProps): Router => {
     consoleP.complete('Route processing complete');
     console.timeEnd('✓ Ready in');
 
-    return normalizedConfig.app || router;
+    if (!normalizedConfig.app) {
+        return router;
+    }
 };
 
 

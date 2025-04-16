@@ -67,20 +67,20 @@ routes/
 │   ├── route.ts         → /product
 │   └── [slug]/route.ts  → /product/:slug     → req.params.slug (string)
 ├── hello/
-│   └── [...slugs]/route.ts → /hello/*        → req.params.slugs (string[])
+│   └── [...slugs]/route.ts → /hello/{*slugs}        → req.params.slugs (string[])
 ```
 
 ---
 
 ## ⚙️ Basic Usage (Detailed)
 
-`rg-express` makes it easy to wire up your routes by pointing to a directory. Under the hood, it scans the folder, maps files to route paths, and returns an Express Router. You can attach this to any Express app instance.
+rg-express makes it easy to wire up your routes by pointing to a directory. It scans the routes/ folder, maps files to route paths, and either returns an Express Router or attaches routes directly to a provided Express app. The routes function supports both TypeScript and JavaScript projects and can automatically generate starter code for empty route files.
 
 ---
 
 ### 🔹 Option 1: Minimal Setup (String Path)
 
-The simplest way—just provide the root directory where your `routes/` folder exists.
+The simplest way—just provide the root directory where your routes/ folder exists. This returns an Express Router that you can attach to your app.
 
 ```ts
 // app.ts
@@ -91,7 +91,7 @@ import { routes } from 'rg-express';
 const app = express();
 
 app.use(express.json());
-app.use(routes(__dirname)); // Loads routes from __dirname/routes by default
+app.use(routes(__dirname)); // Loads routes from __dirname/routes
 
 app.listen(3000, () => {
   console.log('🚀 Server running at http://localhost:3000');
@@ -120,9 +120,9 @@ export const GET = (req, res) => {
 
 ---
 
-### 🔹 Option 2: Full Configuration
+### 🔹 Option 2: Full Configuration (Returning Router)
 
-You can provide an object with more options:
+Provide a configuration object to customize behavior, returning a Router for manual attachment.
 
 ```ts
 import express from 'express';
@@ -132,9 +132,8 @@ const app = express();
 
 app.use(
   routes({
-    baseDir: __dirname, // required
-    routeGenIfEmpty: true, // optional: creates template files if missing
-    app, // optional: attaches directly to the app
+    baseDir: __dirname, // Required: where routes/ folder lives
+    routeGenIfEmpty: true, // Optional: generates starter code for empty route files
   })
 );
 
@@ -143,20 +142,34 @@ app.listen(3000, () => {
 });
 ```
 
-#### ✅ `RouteConfig` interface options:
+### 🔹 Option 3: Full Configuration (Attaching to App)
 
-| Option            | Type      | Description                                       |
-| ----------------- | --------- | ------------------------------------------------- |
-| `baseDir`         | `string`  | **Required.** Root folder (where `routes/` lives) |
-| `routeGenIfEmpty` | `boolean` | Auto-generates starter route if file is empty     |
-| `app`             | `Express` | Optional: If provided, routes attach directly     |
-| `autoSetup`       | `boolean` | ⚠️ _Deprecated_ in favor of `routeGenIfEmpty`     |
+Provide an Express app in the configuration to automatically attach routes to it. This returns void as the routes are directly mounted.
+
+```ts
+import express from 'express';
+import { routes } from 'rg-express';
+
+const app = express();
+
+routes({
+  baseDir: __dirname,
+  routeGenIfEmpty: true,
+  app, // Attaches routes directly to this app instance
+});
+
+app.listen(3000, () => {
+  console.log('✅ Server ready at http://localhost:3000');
+});
+```
+
+⚠️ **Note**: Passing `app` is deprecated. Prefer returning a `Router` and using `app.use()` for better flexibility.
 
 ---
 
-### 🔹 Option 3: Use Default Export
+### 🔹 Option 4: Use Default Export
 
-You can also use the default `rg` function:
+You can use the default `rg` function, which is equivalent to `routes`:
 
 ```ts
 import express from 'express';
@@ -177,17 +190,66 @@ app.use(routes({ baseDir: __dirname }));
 
 ---
 
-## 💡 Pro Tip
+#### ✅ `RouteConfig` interface options:
 
-Set your routes folder to `src/routes` in a TypeScript project:
+| Option            | Type      | Description                                                                     |
+| ----------------- | --------- | ------------------------------------------------------------------------------- |
+| `baseDir`         | `string`  | **Required.** Root folder (where `routes/` lives)                               |
+| `routeGenIfEmpty` | `boolean` | Auto-generates starter route if file is empty                                   |
+| `autoSetup`       | `boolean` | ⚠️ _Deprecated_ in favor of `routeGenIfEmpty`                                   |
+| `app`             | `Express` | ⚠️ Deprecated. Attaches routes to the app (returns void). Omit to get a Router. |
 
-```ts
-import { routes } from 'rg-express';
+---
 
-app.use(routes({ baseDir: path.join(__dirname, 'src') }));
-```
+#### Notes:
 
-Then put your route files under `src/routes/...`
+- If `autoSetup` is used, a deprecation warning is logged, recommending `routeGenIfEmpty`.
+- `routeGenIfEmpty` only works if the project’s file extension (`.ts`, `.js`, `.mjs`, or `.mts`) matches the project type (TypeScript or JavaScript). For TypeScript projects, it requires `.ts` or `.mts` files.
+- The `routes` function validates file extensions, supporting only `.ts`, `.js`, `.mjs`, or `.mts`.
+
+---
+
+## 💡 Pro Tips
+
+Maximize `rg-express` with these best practices for organizing and scaling your Express projects:
+
+- **Use a** `src/` **Structure**: Place your entry point (e.g., `src/main.ts`) and routes (`src/routes/*/**`) in a `src/` folder for a clean layout. Since `main.ts` is in `src/`, set `baseDir` to `__dirname`:
+
+  ```ts
+  import { routes } from 'rg-express';
+  import express from 'express';
+
+  const app = express();
+  app.use(routes({ baseDir: __dirname }));
+  ```
+
+  📁 **Example Structure**:
+
+  ```
+  ├── src/
+  │   ├── routes/
+  │   │   ├── api/
+  │   │   │   └── [id]/route.ts  → /api/:id
+  │   │   └── hello/route.ts     → /hello
+  │   └── main.ts
+  ```
+
+- **Enable Auto-Generation**: Set `routeGenIfEmpty: true` to create starter code for empty route files in `src/routes/`—great for rapid prototyping:
+
+  ```ts
+  app.use(routes({ baseDir: __dirname, routeGenIfEmpty: true }));
+  ```
+
+  This generates templates for new routes, requiring `.ts` for TypeScript or `.js`/`.mjs` for JavaScript.
+
+- **Avoid Deprecated Options**: Skip `autoSetup` and `app` in `routes()`. Return a `Router` and use `app.use()` for modularity:
+
+  ```ts
+  const router = routes({ baseDir: __dirname });
+  app.use('/api', router); // Mount at /api
+  ```
+
+- **Debug with Logs**: Use `rg-express` logs (e.g., "✓ Ready in") to troubleshoot route scanning or auto-generation in `src/routes/`.
 
 ---
 
@@ -195,15 +257,21 @@ Then put your route files under `src/routes/...`
 
 Given `baseDir = __dirname`:
 
-- It looks for `routes/` inside `baseDir`.
-- Matches any file named `route.ts` or `route.js`
-- Automatically converts folders like `routes/product/[id]/route.ts` to `/product/:id`
+- **Folder Scanning**: Looks for a `routes/` folder inside `baseDir`.
+- **File Matching**: Matches files named `route.ts`, `route.js`, `route.mjs`, or `route.mts`.
+- **Route Mapping**: Converts folder structures to Express routes:
+  - `routes/product/route.ts` → `/product`
+  - `routes/product/[id]/route.ts` → `/product/:id`
+  - `routes/hello/[...slugs]/route.ts` → `/hello/{*slugs}`
+- **Auto-Generation**: If `routeGenIfEmpty` is `true`, generates starter code for empty route files (only if the file extension matches the project type).
+- **HTTP Methods**: Supports standard HTTP methods (`GET`, `POST`, `PUT`, `DELETE`, etc.) exported from route files.
+- **Performance Logging**: Logs processing time and completion status using `ProcessConsole`.
 
 ---
 
 ## ⚙️ Route Configuration
 
-You define HTTP handlers (`GET`, `POST`, etc.) by exporting them from route files.
+Define HTTP handlers (`GET`, `POST`, etc.) by exporting them from route files. The `routes` function automatically maps these to the corresponding Express routes.
 
 ### TypeScript Example
 
@@ -278,7 +346,7 @@ export const GET = (req: Request, res: Response) => {
 
 ## 🛡️ Smart Middleware Support
 
-You can use Express middlewares before your handler. Just export them as an array:
+Export an array to include Express middlewares before your handler:
 
 ### Example with Middlewares
 
@@ -309,7 +377,6 @@ export const POST = [
   auth,
   isAdmin,
   (req: Request, res: Response) => {
-    // Logic here
     res.send('User created with inline handler');
   },
 ];
@@ -327,17 +394,6 @@ export const POST = [
 export const GET = (req: Request, res: Response) => {
   const { slug } = req.params;
   res.send(`You requested blog: ${slug}`);
-};
-```
-
-### `[...slugs]` → Wildcard / Catch-All
-
-```ts
-// routes/files/[...slugs]/route.ts
-
-export const GET = (req: Request, res: Response) => {
-  const { slugs } = req.params; // slugs is a string[]
-  res.send(`Path: ${slugs.join('/')}`);
 };
 ```
 
@@ -392,7 +448,7 @@ Then reuse them smartly in routes.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) for details on submitting PRs or reporting issues.
+We welcome contributions! Please read the CONTRIBUTING.md for details on submitting PRs or reporting issues.
 
 ---
 
@@ -400,10 +456,11 @@ We welcome contributions! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) for
 
 `rg-express` makes route organization in Express apps easier, cleaner, and more modular with built-in support for:
 
-- ✅ TypeScript & JavaScript
-- 🧠 Dynamic & catch-all routes
+- ✅ TypeScript & JavaScript (`.ts`, `.js`, `.mjs`, `.mts`)
+- 🧠 Dynamic routes
 - 🧩 Express-style middleware
 - ⚡ File-based auto-loading
+- 📝 Automatic starter code generation for empty files
 
 > Build smarter APIs, faster.
 
