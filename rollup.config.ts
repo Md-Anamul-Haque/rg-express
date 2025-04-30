@@ -25,5 +25,6 @@ export default defineConfig([
             format: "esm", // Format doesn’t matter much for .d.ts, but ESM is fine
         },
         plugins: [dts()],
+        external: ['express', '@types/express'],
     },
 ]);
