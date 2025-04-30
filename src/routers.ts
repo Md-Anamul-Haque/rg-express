@@ -13,6 +13,24 @@ import { FileExt, HttpMethod } from './types';
  */
 // routeGenIfEmpty
 
+// type PropsWithApp = { app: string; [key: string]: any };
+// type PropsWithoutApp = { app?: undefined | null; [key: string]: any };
+
+// // Overload signatures
+// function handleApp(props: PropsWithApp): void;
+// function handleApp(props: PropsWithoutApp): "hello";
+
+// // Implementation
+// function handleApp(props: { app?: string | null; [key: string]: any }): void | "hello" {
+//   if (props.app != null) {
+//     return;
+//   } else {
+//     return "hello";
+//   }
+// }
+// const a = handleApp({ app: "hello" }); // type of `a` is `void`
+// const b = handleApp({});               // type of `b` is `"hello"`
+
 interface RouteConfigWithApp {
     baseDir: string;
     routeGenIfEmpty?: boolean;
@@ -32,6 +50,7 @@ type RouteConfigWithoutApp = string | {
      * @deprecated Use `routeGenIfEmpty` instead.
      */
     autoSetup?: boolean;
+    app?: undefined;
 }
 
 interface RouteConfig {
@@ -54,10 +73,11 @@ const consoleP = new ProcessConsole();
 const consoleP2 = new ProcessConsole();
 
 
-export function routes(config: RouteConfigWithoutApp): Router
-export function routes(config: RouteConfigWithApp): void
+export function routes(config: RouteConfigWithoutApp): Router;
+export function routes(config: string): Router;
+export function routes(config: RouteConfigWithApp): void;
 
-export function routes(config: RoutesProps): Router | void {
+export function routes(config: RoutesProps): (Router | void) {
     const normalizedConfig: RouteConfig = typeof config === 'string'
         ? { baseDir: config, autoSetup: false, routeGenIfEmpty: false }
         : config;
