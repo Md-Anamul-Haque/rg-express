@@ -43,7 +43,7 @@ export const GET = async (req: Request, res: Response) => {
 };`
                 : `import { Request, Response } from 'express';
 
-export const GET = async (_req: Request, res: Response) => {
+export const GET = async (req: Request, res: Response) => {
     res.send('${message}');
 };`;
 
@@ -54,7 +54,7 @@ export const GET = async (_req: Request, res: Response) => {
     res.send({ ${starParams.join(', ')} });
 };
 module.exports = { GET: ${funcName} };`
-                : `const ${funcName} = async (_req, res) => {
+                : `const ${funcName} = async (req, res) => {
     res.send('${message}');
 };
 module.exports = { GET: ${funcName} };`;
@@ -65,7 +65,7 @@ module.exports = { GET: ${funcName} };`;
     const { ${starParams.join(', ')} } = req.params;
     res.send({ ${starParams.join(', ')} });
 };`
-                : `export const GET = async (_req, res) => {
+                : `export const GET = async (req, res) => {
     res.send('${message}');
 };`;
 
