@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-beta.7",
+  "version": "1.0.0-beta.8",
   "license": "MIT",
   "name": "rg-express",
   "main": "dist/index.cjs.js",
@@ -15,7 +15,6 @@
   "files": [
     "dist"
   ],
-  "type": "module",
   "engines": {
     "node": ">=16"
   },
