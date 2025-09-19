@@ -4,3 +4,5 @@ const rg = Object.assign(routes, {
     routes
 })
 export default rg
+
+export { RouteGenIfEmpty } from './types';

@@ -18,7 +18,7 @@ function createRequestType(slugParams: string[], starParams: string[]): string {
 
     return `type Request = ExpressRequest<{ ${slugParamTypes} ${starParamTypes} }>;`;
 }
-
+export const supportedFileExtensions = ['ts', 'js', 'mjs', 'mts'] as const;
 /**
  * Generates the content for the route file based on the parameters and language.
  */
@@ -77,7 +77,7 @@ module.exports = { GET: ${funcName} };`;
 /**
  * Writes the startup code to a file if it does not exist or if it is empty.
  */
-export function writeToFileSyncStartupCode(startDir: string, filename: string): void {
+export function writeToFileSyncStartupCode(startDir: string, filename: string, codeSnippet_content?: string): void {
     const starParams = getStarParamsByRoute(filename); // [...slug]
     const slugParams = getSlugParamsByRoute(filename); // [userId]
     const allParams = [...slugParams, ...starParams]; // Combined
@@ -89,7 +89,7 @@ export function writeToFileSyncStartupCode(startDir: string, filename: string): 
     const message = relativePath || 'hello';
 
     const ext = filename.split('.').pop() as FileExt;
-    const content = generateContent(ext, allParams, slugParams, starParams, funcName, message);
+    const content = codeSnippet_content || generateContent(ext, allParams, slugParams, starParams, funcName, message);
 
     try {
         // Check if the file exists and if its content is empty

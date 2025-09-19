@@ -142,6 +142,12 @@ app.listen(3000, () => {
 });
 ```
 
+---
+
+### 🔹 New Feature: Custom Code Snippet for `routeGenIfEmpty`
+
+You can now pass a custom code snippet to `routeGenIfEmpty` instead of just a boolean. This allows you to define the default content for newly generated route files.
+
 ### 🔹 Option 3: Full Configuration (Attaching to App)
 
 Provide an Express app in the configuration to automatically attach routes to it. This returns void as the routes are directly mounted.
@@ -158,10 +164,28 @@ routes({
   app, // Attaches routes directly to this app instance
 });
 
+// or
+
+app.use(
+  routes({
+    baseDir: __dirname,
+    routeGenIfEmpty: {
+      codeSnippet: `import { auth } from '@/middlewares/auth';
+import { Request, Response } from 'express';
+
+export const GET = [auth,async (req: Request, res: Response) => {
+    res.send('hello');
+}];`,
+    },
+  })
+);
+
 app.listen(3000, () => {
   console.log('✅ Server ready at http://localhost:3000');
 });
 ```
+
+In this example, if a route file is empty, the specified `codeSnippet` will be written to the file.
 
 ⚠️ **Note**: Passing `app` is deprecated. Prefer returning a `Router` and using `app.use()` for better flexibility.
 
@@ -192,12 +216,12 @@ app.use(routes({ baseDir: __dirname }));
 
 #### ✅ `RouteConfig` interface options:
 
-| Option            | Type      | Description                                                                     |
-| ----------------- | --------- | ------------------------------------------------------------------------------- |
-| `baseDir`         | `string`  | **Required.** Root folder (where `routes/` lives)                               |
-| `routeGenIfEmpty` | `boolean` | Auto-generates starter route if file is empty                                   |
-| `autoSetup`       | `boolean` | ⚠️ _Deprecated_ in favor of `routeGenIfEmpty`                                   |
-| `app`             | `Express` | ⚠️ Deprecated. Attaches routes to the app (returns void). Omit to get a Router. |
+| Option            | Type                          | Description                                                                     |
+| ----------------- | ----------------------------- | ------------------------------------------------------------------------------- |
+| `baseDir`         | `string`                      | **Required.** Root folder (where `routes/` lives)                               |
+| `routeGenIfEmpty` | `boolean`or `RouteGenIfEmpty` | Auto-generates starter route if file is empty                                   |
+| `autoSetup`       | `boolean`                     | ⚠️ _Deprecated_ in favor of `routeGenIfEmpty`                                   |
+| `app`             | `Express`                     | ⚠️ Deprecated. Attaches routes to the app (returns void). Omit to get a Router. |
 
 ---
 

@@ -3,7 +3,7 @@ import { ProcessConsole } from './lib/processConsole';
 import { FileReader } from './lib/readFiles';
 import { createRoutePath, determineFileExtension, filterAndLowercaseHttpMethods, isTypeScriptProject } from './lib/utils';
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
-import { FileExt, HttpMethod } from './types';
+import { FileExt, HttpMethod, RouteGenIfEmpty } from './types';
 /**
  * Configuration options for setting up application routes.
  *
@@ -33,7 +33,7 @@ import { FileExt, HttpMethod } from './types';
 
 interface RouteConfigWithApp {
     baseDir: string;
-    routeGenIfEmpty?: boolean;
+    routeGenIfEmpty?: RouteGenIfEmpty;
     /**
      * @deprecated Use `routeGenIfEmpty` instead.
      */
@@ -45,7 +45,7 @@ interface RouteConfigWithApp {
 }
 type RouteConfigWithoutApp = string | {
     baseDir: string;
-    routeGenIfEmpty?: boolean;
+    routeGenIfEmpty?: RouteGenIfEmpty;
     /**
      * @deprecated Use `routeGenIfEmpty` instead.
      */
@@ -55,7 +55,7 @@ type RouteConfigWithoutApp = string | {
 
 interface RouteConfig {
     baseDir: string;
-    routeGenIfEmpty?: boolean;
+    routeGenIfEmpty?: RouteGenIfEmpty;
     /**
      * @deprecated Use `routeGenIfEmpty` instead.
      */
@@ -88,7 +88,9 @@ export function routes(config: RoutesProps): (Router | void) {
 
 
     console.time('✓ Ready in');
-    const isRouteGenIfEmpty = Boolean(normalizedConfig.routeGenIfEmpty || normalizedConfig.autoSetup);
+    const isRouteGenWIthObject = typeof normalizedConfig.routeGenIfEmpty === 'object' && 'codeSnippet' in normalizedConfig.routeGenIfEmpty;
+    const isRouteGenWithBoolean = typeof normalizedConfig.routeGenIfEmpty === 'boolean' && normalizedConfig.routeGenIfEmpty === true;
+    const isRouteGenIfEmpty = Boolean(isRouteGenWIthObject || isRouteGenWithBoolean || normalizedConfig.autoSetup);
     const fileExtension = determineFileExtension();
     validateFileExtension(fileExtension);
 
@@ -127,7 +129,7 @@ function validateFileExtension(ext: string): asserts ext is 'ts' | 'js' | 'mjs' 
     }
 }
 
-function processRoutes(fileList: string[], startDir: string, router: Router, autoSetup: boolean, lang: string) {
+function processRoutes(fileList: string[], startDir: string, router: Router, autoSetup: boolean, lang: string, codeSnippet?: string) {
 
     const routeDefinitions = fileList.map(filePath => {
         const { route: expressRoutePath } = createRoutePath({ name: filePath, startDir }, lang);
@@ -153,7 +155,7 @@ function processRoutes(fileList: string[], startDir: string, router: Router, aut
     });
     routeDefinitions.forEach(({ filePath, methodHandlers, route }) => {
         if (autoSetup) {
-            writeToFileSyncStartupCode(startDir, filePath);
+            writeToFileSyncStartupCode(startDir, filePath, codeSnippet);
         }
         methodHandlers.forEach(({ method, handler }) => {
             router[method](route, handler);
