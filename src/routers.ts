@@ -88,7 +88,8 @@ export function routes(config: RoutesProps): (Router | void) {
 
 
     console.time('✓ Ready in');
-    const isRouteGenWIthObject = typeof normalizedConfig.routeGenIfEmpty === 'object' && 'codeSnippet' in normalizedConfig.routeGenIfEmpty;
+    const codeSnippet = typeof normalizedConfig.routeGenIfEmpty === 'object' && 'codeSnippet' in normalizedConfig.routeGenIfEmpty ? normalizedConfig.routeGenIfEmpty.codeSnippet : undefined;
+    const isRouteGenWIthObject = codeSnippet !== undefined;
     const isRouteGenWithBoolean = typeof normalizedConfig.routeGenIfEmpty === 'boolean' && normalizedConfig.routeGenIfEmpty === true;
     const isRouteGenIfEmpty = Boolean(isRouteGenWIthObject || isRouteGenWithBoolean || normalizedConfig.autoSetup);
     const fileExtension = determineFileExtension();
@@ -111,7 +112,7 @@ export function routes(config: RoutesProps): (Router | void) {
     const router = normalizedConfig.app || express.Router();
     const fileList = FileReader.readFiles(startDir, fileExtension as FileExt);
     if (fileList.length) {
-        processRoutes(fileList, startDir, router, shouldAutoSetup, fileExtension);
+        processRoutes(fileList, startDir, router, shouldAutoSetup, fileExtension, codeSnippet);
     }
 
     consoleP.complete('Route processing complete');
@@ -130,7 +131,6 @@ function validateFileExtension(ext: string): asserts ext is 'ts' | 'js' | 'mjs' 
 }
 
 function processRoutes(fileList: string[], startDir: string, router: Router, autoSetup: boolean, lang: string, codeSnippet?: string) {
-
     const routeDefinitions = fileList.map(filePath => {
         const { route: expressRoutePath } = createRoutePath({ name: filePath, startDir }, lang);
         const exportedHandlers = require(filePath);

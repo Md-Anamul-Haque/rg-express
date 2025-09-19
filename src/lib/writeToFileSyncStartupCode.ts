@@ -87,7 +87,6 @@ export function writeToFileSyncStartupCode(startDir: string, filename: string, c
         ? getValidFunctionName(`handleGet${relativePath.replace(/^\w/, c => c.toUpperCase()).replace(/-(\w)/g, (_, g) => g.toUpperCase())}`)
         : 'handleGetRequest';
     const message = relativePath || 'hello';
-
     const ext = filename.split('.').pop() as FileExt;
     const content = codeSnippet_content || generateContent(ext, allParams, slugParams, starParams, funcName, message);
 
