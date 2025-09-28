@@ -3,7 +3,7 @@ import { ProcessConsole } from './lib/processConsole';
 import { FileReader } from './lib/readFiles';
 import { createRoutePath, determineFileExtension, filterAndLowercaseHttpMethods, isTypeScriptProject } from './lib/utils';
 import { writeToFileSyncStartupCode } from './lib/writeToFileSyncStartupCode';
-import { FileExt, HttpMethod, RouteGenIfEmpty } from './types';
+import { CodeSnippetFn, FileExt, HttpMethod, RouteGenIfEmpty } from './types';
 /**
  * Configuration options for setting up application routes.
  *
@@ -89,7 +89,8 @@ export function routes(config: RoutesProps): (Router | void) {
 
     console.time('✓ Ready in');
     const codeSnippet = typeof normalizedConfig.routeGenIfEmpty === 'object' && 'codeSnippet' in normalizedConfig.routeGenIfEmpty ? normalizedConfig.routeGenIfEmpty.codeSnippet : undefined;
-    const isRouteGenWIthObject = codeSnippet !== undefined;
+    const codeSnippetFn = typeof normalizedConfig.routeGenIfEmpty === 'object' && 'codeSnippetFn' in normalizedConfig.routeGenIfEmpty ? normalizedConfig.routeGenIfEmpty.codeSnippetFn : undefined;
+    const isRouteGenWIthObject = codeSnippet !== undefined || codeSnippetFn !== undefined;
     const isRouteGenWithBoolean = typeof normalizedConfig.routeGenIfEmpty === 'boolean' && normalizedConfig.routeGenIfEmpty === true;
     const isRouteGenIfEmpty = Boolean(isRouteGenWIthObject || isRouteGenWithBoolean || normalizedConfig.autoSetup);
     const fileExtension = determineFileExtension();
@@ -112,7 +113,7 @@ export function routes(config: RoutesProps): (Router | void) {
     const router = normalizedConfig.app || express.Router();
     const fileList = FileReader.readFiles(startDir, fileExtension as FileExt);
     if (fileList.length) {
-        processRoutes(fileList, startDir, router, shouldAutoSetup, fileExtension, codeSnippet);
+        processRoutes(fileList, startDir, router, shouldAutoSetup, fileExtension, { codeSnippet, codeSnippetFn });
     }
 
     consoleP.complete('Route processing complete');
@@ -130,7 +131,7 @@ function validateFileExtension(ext: string): asserts ext is 'ts' | 'js' | 'mjs' 
     }
 }
 
-function processRoutes(fileList: string[], startDir: string, router: Router, autoSetup: boolean, lang: string, codeSnippet?: string) {
+function processRoutes(fileList: string[], startDir: string, router: Router, autoSetup: boolean, lang: string, { codeSnippet, codeSnippetFn }: { codeSnippet?: string, codeSnippetFn?: CodeSnippetFn }) {
     const routeDefinitions = fileList.map(filePath => {
         const { route: expressRoutePath } = createRoutePath({ name: filePath, startDir }, lang);
         const exportedHandlers = require(filePath);
@@ -155,9 +156,13 @@ function processRoutes(fileList: string[], startDir: string, router: Router, aut
     });
     routeDefinitions.forEach(({ filePath, methodHandlers, route }) => {
         if (autoSetup) {
-            writeToFileSyncStartupCode(startDir, filePath, codeSnippet);
+            writeToFileSyncStartupCode(startDir, filePath, { codeSnippet, codeSnippetFn });
         }
         methodHandlers.forEach(({ method, handler }) => {
+            if (typeof handler !== 'function') {
+                consoleP.fail(`Handler for ${method.toUpperCase()} ${route} in ${filePath} is not a function.`);
+                return;
+            }
             router[method](route, handler);
         })
 

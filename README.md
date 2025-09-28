@@ -146,7 +146,18 @@ app.listen(3000, () => {
 
 ### 🔹 New Feature: Custom Code Snippet for `routeGenIfEmpty`
 
-You can now pass a custom code snippet to `routeGenIfEmpty` instead of just a boolean. This allows you to define the default content for newly generated route files.
+You can now pass a custom code snippet or a function to `routeGenIfEmpty`. This allows you to define the default content for newly generated route files dynamically.
+
+#### `RouteGenIfEmpty` Type Definition
+
+```ts
+type RouteGenIfEmpty =
+  | boolean
+  | {
+      codeSnippet?: string;
+      codeSnippetFn?: ((config: { spreadParams: string[], slugParams: string[], allParams: string[] })) => string;
+    };
+```
 
 ### 🔹 Option 3: Full Configuration (Attaching to App)
 
@@ -176,6 +187,8 @@ import { Request, Response } from 'express';
 export const GET = [auth,async (req: Request, res: Response) => {
     res.send('hello');
 }];`,
+      codeSnippetFn: (filePath) =>
+        `// Custom code for ${filePath}\nexport const GET = (req, res) => { res.send('Hello from ${filePath}'); };`,
     },
   })
 );
@@ -185,7 +198,7 @@ app.listen(3000, () => {
 });
 ```
 
-In this example, if a route file is empty, the specified `codeSnippet` will be written to the file.
+In this example, if a route file is empty, the specified `codeSnippet` or the result of `codeSnippetFn` will be written to the file.
 
 ⚠️ **Note**: Passing `app` is deprecated. Prefer returning a `Router` and using `app.use()` for better flexibility.
 

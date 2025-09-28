@@ -12,7 +12,10 @@ export const httpMethods = [
     'CONNECT',
     'TRACE'
 ] as const;
-export function getStarParamsByRoute(route: string): string[] {
+
+const httpMethodsSet = new Set(httpMethods);
+// export type HttpMethodUpper = typeof httpMethods[number];
+export function getSpreadParamsByRoute(route: string): string[] {
     const matches = route.match(/\[\.\.\.([a-zA-Z0-9_]+)\]/g) || [];
     return matches.map(match => match.match(/\w+/)?.[0]).filter(Boolean) as string[];
 }
@@ -52,9 +55,9 @@ export function createRoutePath({ name, startDir }: { name: string; startDir: st
     return { route };
 }
 
-export function filterAndLowercaseHttpMethods(methods: string[]): HttpMethod[] {
-    return methods
-        .filter(method => httpMethods.includes(method.toUpperCase() as (typeof httpMethods)[number]))
+export function filterAndLowercaseHttpMethods(exportedHandlerNames: string[]): HttpMethod[] {
+    return exportedHandlerNames
+        .filter((name): name is typeof httpMethods[number] => httpMethodsSet.has(name as typeof httpMethods[number]))
         .map(method => method.toLowerCase() as HttpMethod);
 }
 
