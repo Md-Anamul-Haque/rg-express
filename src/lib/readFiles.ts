@@ -87,42 +87,57 @@ class PathSorter {
         ];
     }
 }
+const SKIP_DIRS = new Set([
+    "_",
+    "node_modules",
+    ".git",
+    ".rg",
+]);
 
 export class FileReader {
     private static normalizePath(filePath: string): string {
         return filePath.replace(/\\/g, '/');
     }
 
-    private static isRouteFile(fileName: string, extension: string): boolean {
-        return new RegExp(`^route\.${extension}$`).test(fileName);
+    private static isRouteFile(fileName: string, extension: FileExt): boolean {
+        return fileName === `route.${extension}`;
     }
 
-    static readFiles(directoryPath: string, fileExtension: FileExt): string[] {
+    static readFiles(
+        directoryPath: string,
+        fileExtension: FileExt
+    ): string[] {
         try {
             const normalizedDir = this.normalizePath(directoryPath);
-            const files = fs.readdirSync(normalizedDir);
+            const entries = fs.readdirSync(normalizedDir, { withFileTypes: true });
             const fileList: string[] = [];
 
-            for (const file of files) {
-                const filePath = this.normalizePath(path.join(normalizedDir, file));
-                const stats = fs.statSync(filePath);
+            for (const entry of entries) {
+                const entryPath = this.normalizePath(
+                    path.join(normalizedDir, entry.name)
+                );
 
-                if (stats.isDirectory()) {
-                    fileList.push(...this.readFiles(filePath, fileExtension));
-                } else {
-                    const fileName = path.basename(filePath);
-                    if (this.isRouteFile(fileName, fileExtension)) {
-                        // checkForDuplicateParams if dublicate params then throw error
-                        checkForDuplicateParams(filePath);
-                        fileList.push(filePath);
+                if (entry.isDirectory()) {
+                    // skip dirs starting with "_"
+                    if (SKIP_DIRS.has(entry.name)) continue;
+
+                    fileList.push(...this.readFiles(entryPath, fileExtension));
+                    continue;
+                }
+
+                if (entry.isFile()) {
+                    if (this.isRouteFile(entry.name, fileExtension)) {
+                        checkForDuplicateParams(entryPath);
+                        fileList.push(entryPath);
                     }
                 }
             }
 
             return PathSorter.sortFiles(fileList);
         } catch (error) {
-            console.error('Error reading files:', error);
+            console.error("Error reading files:", error);
             return [];
         }
     }
+
 }
