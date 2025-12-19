@@ -295,7 +295,7 @@ Maximize `rg-express` with these best practices for organizing and scaling your 
 
 Given `baseDir = __dirname`:
 
-- **Folder Scanning**: Looks for a `routes/` folder inside `baseDir`. Directories starting with `_` (e.g., `_utils`) and system folders (`node_modules`, `.git`, `.rg`) are skipped.
+- **Folder Scanning**: Looks for a `routes/` folder inside `baseDir`. Directories starting with `_` (e.g., `_utils`) is skipped.
 - **File Matching**: Matches files named `route.ts`, `route.js`, `route.mjs`, or `route.mts`.
 - **Route Mapping**: Converts folder structures to Express routes:
   - `routes/product/route.ts` → `/product`
