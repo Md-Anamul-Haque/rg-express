@@ -87,12 +87,6 @@ class PathSorter {
         ];
     }
 }
-const SKIP_DIRS = new Set([
-    "_",
-    "node_modules",
-    ".git",
-    ".rg",
-]);
 
 export class FileReader {
     private static normalizePath(filePath: string): string {
@@ -119,8 +113,7 @@ export class FileReader {
 
                 if (entry.isDirectory()) {
                     // skip dirs starting with "_"
-                    if (SKIP_DIRS.has(entry.name)) continue;
-
+                    if (entry.name.startsWith("_")) continue;
                     fileList.push(...this.readFiles(entryPath, fileExtension));
                     continue;
                 }
