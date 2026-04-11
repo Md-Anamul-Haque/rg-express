@@ -104,8 +104,8 @@ export function routes(config: RoutesProps): (Router | void) {
 
     if (isRouteGenIfEmpty) {
         shouldAutoSetup
-            ? consoleP2.complete(`Auto setup starter Code_ifEmptyFile with ${fileExtension}`)
-            : consoleP2.fail(`AutoSetup: Project is '${isTsProject ? 'TypeScript' : fileExtension}', but running file is '${fileExtension}'`);
+            ? consoleP2.complete(`AutoSetup: routeGenIfEmpty is enabled`)
+            : consoleP2.fail(`AutoSetup is disabled. To enable, ensure that your project is a '${fileExtension}' project and set 'routeGenIfEmpty' to true or provide a code snippet.`);
     }
 
     consoleP.start('Route processing');
@@ -159,8 +159,29 @@ function processRoutes(fileList: string[], startDir: string, router: Router, aut
             writeToFileSyncStartupCode(startDir, filePath, { codeSnippet, codeSnippetFn });
         }
         methodHandlers.forEach(({ method, handler }) => {
-            if (typeof handler !== 'function') {
-                consoleP.fail(`Handler for ${method.toUpperCase()} ${route} in ${filePath} is not a function.`);
+            // check validity of handler
+            // handler can be a function or an array of functions (for middleware)
+            let isValidHandler = false;
+            let spacial_case = '';
+            if (typeof handler === 'function') {
+                isValidHandler = true;
+            } else if (typeof handler === 'object' && Array.isArray(handler)) {
+                // if it's an array, and all elements are functions, then it's valid else store what item/index of element is invalid in spacial_case
+                const allFunctions = (handler as RequestHandler[]).every((h, index) => {
+                    if (typeof h !== 'function') {
+                        spacial_case = `Element at index ${index} is not a function`;
+                        return false;
+                    }
+                    return true;
+                });
+                if (allFunctions) {
+                    isValidHandler = true;
+                }
+
+            }
+            if (!isValidHandler) {
+                // consoleP.fail(`Handler for ${method.toUpperCase()} ${route} in ${filePath} is not a valid method handler. It should be a function or an array of functions.`);
+                    consoleP.fail(`Invalid handler for ${method.toUpperCase()} ${route} in ${filePath}. ${spacial_case ? `Issue: ${spacial_case}` : 'Handler should be a function or an array of functions.'}`);
                 return;
             }
             router[method](route, handler);
